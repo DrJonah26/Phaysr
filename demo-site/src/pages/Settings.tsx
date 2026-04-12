@@ -16,7 +16,7 @@ export function Settings() {
   };
 
   const sectionTitle = (text: string) => (
-    <h2 style={{ fontFamily: "'Syne', system-ui", fontSize: 13, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-0.01em', margin: 0 }}>
+    <h2 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 17, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-0.01em', margin: 0 }}>
       {text}
     </h2>
   );
@@ -26,7 +26,7 @@ export function Settings() {
 
       {/* ── Header ── */}
       <header style={{ marginBottom: 36 }}>
-        <h1 style={{ fontFamily: "'Syne', system-ui", fontSize: 28, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-0.03em', lineHeight: 1.1, margin: '0 0 5px' }}>
+        <h1 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 32, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-0.02em', lineHeight: 1.1, margin: '0 0 5px' }}>
           Settings
         </h1>
         <p style={{ fontSize: 13, color: 'var(--text-2)', margin: 0 }}>Manage your account preferences</p>
@@ -136,7 +136,7 @@ export function Settings() {
               top: 2, left: notifications ? 20 : 2,
               width: 16, height: 16,
               borderRadius: '50%',
-              background: notifications ? '#0C0C0F' : 'var(--text-3)',
+              background: notifications ? '#FFFFFF' : 'var(--text-3)',
               transition: 'left 0.15s',
             }} />
           </button>
@@ -147,8 +147,9 @@ export function Settings() {
       <section style={{
         padding: 24,
         borderRadius: 10,
-        border: '1px solid rgba(190,255,0,0.2)',
-        background: 'rgba(190,255,0,0.04)',
+        border: '1px solid rgba(156,89,89,0.25)',
+        background: 'rgba(156,89,89,0.04)',
+        boxShadow: '0 1px 3px rgba(28,20,16,0.04)',
       }}>
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
           <div>

@@ -69,14 +69,6 @@ export function getWidgetStyles(color: string): string {
       cursor: not-allowed;
       transform: none;
     }
-    .dock-hint {
-      margin-left: 6px;
-      color: rgba(19, 21, 29, 0.68);
-      font-size: 11px;
-      line-height: 1.2;
-      user-select: none;
-    }
-
     @media (max-width: 560px) {
       .root {
         right: 10px;
@@ -84,9 +76,6 @@ export function getWidgetStyles(color: string): string {
       }
       .input-dock {
         width: calc(100vw - 20px);
-      }
-      .dock-hint {
-        max-width: calc(100vw - 20px);
       }
     }
   `;

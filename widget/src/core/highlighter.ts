@@ -105,13 +105,15 @@ function ensureGuideOutput() {
   el.style.border = '2px solid #3B82F6';
   el.style.boxShadow = '0 16px 40px rgba(0, 0, 0, 0.22)';
   el.style.backdropFilter = 'blur(10px)';
-  el.style.display = 'none';
-  el.style.pointerEvents = 'auto';
+  el.style.display = 'block';
+  el.style.opacity = '0';
+  el.style.visibility = 'hidden';
+  el.style.pointerEvents = 'none';
   el.style.fontFamily = 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
   el.style.color = '#101219';
-  el.style.transitionProperty = 'left, top';
+  el.style.transitionProperty = 'left, top, opacity, visibility';
   el.style.transitionTimingFunction = 'cubic-bezier(0.25, 0.1, 0.25, 1)';
-  el.style.transitionDuration = '0s'; // set dynamically per move based on distance
+  el.style.transitionDuration = '0s, 0s, 0.18s, 0.18s';
 
   const text = document.createElement('div');
   text.style.fontSize = '12px';
@@ -212,7 +214,7 @@ function positionGuideOutput() {
 
       // Distance-based duration — same formula as cursor animation
       // Only animate when visible (avoid weird transition on first reveal)
-      const isVisible = guideOutputEl.style.display !== 'none';
+      const isVisible = guideOutputEl.style.visibility !== 'hidden';
       if (isVisible && lastGuideOutputPos) {
         const dx = newLeft - lastGuideOutputPos.left;
         const dy = newTop  - lastGuideOutputPos.top;
@@ -291,9 +293,11 @@ async function drawRingWithCursor(target: Element, color: string): Promise<void>
   lastHighlightRect = rect;
   positionGuideOutput();
   // If guide output has text but was waiting for a target, reveal it now
-  if (guideOutputPendingReveal && guideOutputEl && guideOutputEl.style.display === 'none') {
+  if (guideOutputPendingReveal && guideOutputEl && guideOutputEl.style.visibility === 'hidden') {
     guideOutputPendingReveal = false;
-    guideOutputEl.style.display = 'block';
+    guideOutputEl.style.opacity = '1';
+    guideOutputEl.style.visibility = 'visible';
+    guideOutputEl.style.pointerEvents = 'auto';
   }
 
   const endX = rect.left + rect.width * 0.3;
@@ -407,7 +411,9 @@ export function showGuideOutput(options: GuideOutputOptions) {
 
   // Hide while AI is loading with no text yet — block reappears once text streams in
   if (options.isLoading && !cleanText) {
-    guideOutputEl.style.display = 'none';
+    guideOutputEl.style.opacity = '0';
+    guideOutputEl.style.visibility = 'hidden';
+    guideOutputEl.style.pointerEvents = 'none';
     return;
   }
 
@@ -437,7 +443,9 @@ export function showGuideOutput(options: GuideOutputOptions) {
 
   const shouldHide = !cleanText && !options.isLoading && !canContinue;
   if (shouldHide) {
-    guideOutputEl.style.display = 'none';
+    guideOutputEl.style.opacity = '0';
+    guideOutputEl.style.visibility = 'hidden';
+    guideOutputEl.style.pointerEvents = 'none';
     return;
   }
 
@@ -451,13 +459,19 @@ export function showGuideOutput(options: GuideOutputOptions) {
   }
 
   guideOutputPendingReveal = false;
-  guideOutputEl.style.display = 'block';
+  guideOutputEl.style.opacity = '1';
+  guideOutputEl.style.visibility = 'visible';
+  guideOutputEl.style.pointerEvents = 'auto';
 }
 
 /** Hide visually but keep all state (position, cursor, colors) intact.
  *  Use this at the start of a new loading cycle. */
 export function collapseGuideOutput() {
-  if (guideOutputEl) guideOutputEl.style.display = 'none';
+  if (guideOutputEl) {
+    guideOutputEl.style.opacity = '0';
+    guideOutputEl.style.visibility = 'hidden';
+    guideOutputEl.style.pointerEvents = 'none';
+  }
   guideOutputPendingReveal = false;
 }
 

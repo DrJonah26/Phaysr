@@ -49,7 +49,7 @@ export function Billing() {
 
       {/* ── Header ── */}
       <header style={{ marginBottom: 36 }}>
-        <h1 style={{ fontFamily: "'Syne', system-ui", fontSize: 28, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-0.03em', lineHeight: 1.1, margin: '0 0 5px' }}>
+        <h1 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 32, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-0.02em', lineHeight: 1.1, margin: '0 0 5px' }}>
           Billing
         </h1>
         <p style={{ fontSize: 13, color: 'var(--text-2)', margin: 0 }}>Manage your subscription and invoices</p>
@@ -57,7 +57,7 @@ export function Billing() {
 
       {/* ── Current plan ── */}
       <section className="card" style={{ padding: 24, marginBottom: 10 }}>
-        <h2 style={{ fontFamily: "'Syne', system-ui", fontSize: 13, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-0.01em', margin: '0 0 14px' }}>
+        <h2 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 17, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-0.01em', margin: '0 0 14px' }}>
           Current plan
         </h2>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -88,8 +88,8 @@ export function Billing() {
 
       {/* ── Choose plan ── */}
       {showUpgrade && !showCardForm && (
-        <section className="card" style={{ padding: 24, marginBottom: 10, borderColor: 'rgba(190,255,0,0.25)', boxShadow: '0 0 40px rgba(190,255,0,0.04)' }}>
-          <h2 style={{ fontFamily: "'Syne', system-ui", fontSize: 13, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-0.01em', margin: '0 0 3px' }}>
+        <section className="card" style={{ padding: 24, marginBottom: 10, borderColor: 'rgba(156,89,89,0.30)', boxShadow: '0 0 40px rgba(156,89,89,0.06)' }}>
+          <h2 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 17, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-0.01em', margin: '0 0 3px' }}>
             Choose a plan
           </h2>
           <p style={{ fontSize: 11, color: 'var(--text-3)', margin: '0 0 18px' }}>All plans include a 14-day free trial.</p>
@@ -104,10 +104,10 @@ export function Billing() {
                   style={{
                     textAlign: 'left', padding: 18, borderRadius: 8,
                     border: `1px solid ${sel ? 'var(--accent)' : 'var(--border)'}`,
-                    background: sel ? 'rgba(190,255,0,0.06)' : 'var(--elevated)',
+                    background: sel ? 'rgba(156,89,89,0.06)' : 'var(--elevated)',
                     cursor: 'pointer',
-                    transition: 'border-color 0.1s, background 0.1s',
-                    boxShadow: sel ? '0 0 24px rgba(190,255,0,0.08)' : 'none',
+                    transition: 'border-color 0.12s, background 0.12s',
+                    boxShadow: sel ? '0 0 24px rgba(156,89,89,0.10)' : 'none',
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: 3, marginBottom: 4 }}>
@@ -116,7 +116,7 @@ export function Billing() {
                     </span>
                     <span style={{ fontSize: 11, color: 'var(--text-3)' }}>{plan.period}</span>
                   </div>
-                  <div style={{ fontFamily: "'Syne', system-ui", fontSize: 13, fontWeight: 700, color: sel ? 'var(--accent)' : 'var(--text-1)', letterSpacing: '-0.01em', marginBottom: 10 }}>
+                  <div style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 17, fontWeight: 700, color: sel ? 'var(--accent)' : 'var(--text-1)', letterSpacing: '-0.01em', marginBottom: 10 }}>
                     {plan.name}
                   </div>
                   <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 5 }}>
@@ -142,8 +142,8 @@ export function Billing() {
 
       {/* ── Card entry ── */}
       {showUpgrade && showCardForm && (
-        <section className="card" style={{ padding: 24, marginBottom: 10, borderColor: 'rgba(190,255,0,0.25)' }}>
-          <h2 style={{ fontFamily: "'Syne', system-ui", fontSize: 13, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-0.01em', margin: '0 0 3px' }}>
+        <section className="card" style={{ padding: 24, marginBottom: 10, borderColor: 'rgba(156,89,89,0.30)' }}>
+          <h2 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 17, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-0.01em', margin: '0 0 3px' }}>
             Payment details
           </h2>
           <p style={{ fontSize: 11, color: 'var(--text-3)', margin: '0 0 18px' }}>You won't be charged until your trial ends.</p>
@@ -172,7 +172,7 @@ export function Billing() {
 
       {/* ── Payment method ── */}
       <section className="card" style={{ padding: 24, marginBottom: 10 }}>
-        <h2 style={{ fontFamily: "'Syne', system-ui", fontSize: 13, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-0.01em', margin: '0 0 14px' }}>
+        <h2 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 17, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-0.01em', margin: '0 0 14px' }}>
           Payment method
         </h2>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -184,7 +184,7 @@ export function Billing() {
       {/* ── Invoices ── */}
       <section className="card" style={{ overflow: 'hidden' }}>
         <div style={{ padding: '16px 24px', borderBottom: '1px solid var(--border)' }}>
-          <h2 style={{ fontFamily: "'Syne', system-ui", fontSize: 13, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-0.01em', margin: 0 }}>
+          <h2 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 17, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-0.01em', margin: 0 }}>
             Invoice history
           </h2>
         </div>
@@ -222,9 +222,9 @@ export function Billing() {
                     padding: '2px 8px', borderRadius: 4,
                     fontFamily: "'JetBrains Mono', monospace",
                     fontSize: 9, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.06em',
-                    background: 'rgba(0, 207, 120, 0.10)',
+                    background: 'rgba(45, 122, 82, 0.10)',
                     color: 'var(--green)',
-                    border: '1px solid rgba(0, 207, 120, 0.20)',
+                    border: '1px solid rgba(45, 122, 82, 0.22)',
                   }}>
                     <span style={{ width: 4, height: 4, borderRadius: '50%', background: 'var(--green)' }} />
                     {inv.status}

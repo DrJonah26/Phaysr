@@ -20,7 +20,7 @@ const MONTHS      = ['J','F','M','A','M','J','J','A','S','O','N','D'];
 
 const PROJECT_TYPES = ['Software', 'Design', 'Marketing', 'Research', 'Other'];
 
-const AVATAR_BG = ['#1E2030', '#1E2820', '#201E2A', '#2A1E1E', '#1E2826'];
+const AVATAR_BG = ['#F5EDED', '#EDF1F5', '#F5F1ED', '#F0EDF5', '#EDF5F1'];
 
 export function Dashboard() {
   const [showNewProject, setShowNewProject] = useState(false);
@@ -40,7 +40,7 @@ export function Dashboard() {
       {/* ── Header ── */}
       <header style={{ marginBottom: 36, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ fontFamily: "'Syne', system-ui", fontSize: 28, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-0.03em', lineHeight: 1.1, margin: '0 0 5px' }}>
+          <h1 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 32, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-0.02em', lineHeight: 1.1, margin: '0 0 5px' }}>
             Dashboard
           </h1>
           <p style={{ fontSize: 13, color: 'var(--text-2)', margin: 0 }}>Overview of your workspace</p>
@@ -60,8 +60,8 @@ export function Dashboard() {
 
       {/* ── New project form ── */}
       {showNewProject && (
-        <div className="card" style={{ padding: 24, marginBottom: 20, borderColor: 'rgba(190,255,0,0.3)', boxShadow: '0 0 32px rgba(190,255,0,0.05)' }}>
-          <h2 style={{ fontFamily: "'Syne', system-ui", fontSize: 14, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-0.01em', margin: '0 0 18px' }}>
+        <div className="card" style={{ padding: 24, marginBottom: 20, borderColor: 'rgba(156,89,89,0.35)', boxShadow: '0 0 32px rgba(156,89,89,0.06)' }}>
+          <h2 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 18, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-0.01em', margin: '0 0 18px' }}>
             Create new project
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -135,7 +135,7 @@ export function Dashboard() {
         {/* Chart */}
         <div className="card" style={{ padding: '22px 24px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-            <h2 style={{ fontFamily: "'Syne', system-ui", fontSize: 13, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-0.01em', margin: 0 }}>
+            <h2 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 16, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-0.01em', margin: 0 }}>
               Project Velocity
             </h2>
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
@@ -158,7 +158,7 @@ export function Dashboard() {
                 <div key={i} style={{ flex: 1, height: `${h}%`, borderRadius: '3px 3px 0 0', overflow: 'hidden', position: 'relative' }}>
                   <div style={{
                     position: 'absolute', inset: 0,
-                    background: 'linear-gradient(to top, var(--accent) 0%, rgba(190,255,0,0.25) 100%)',
+                    background: 'linear-gradient(to top, var(--accent) 0%, rgba(156,89,89,0.18) 100%)',
                   }} />
                 </div>
               ))}
@@ -176,7 +176,7 @@ export function Dashboard() {
 
         {/* Activity */}
         <div className="card" style={{ padding: '22px 20px' }}>
-          <h2 style={{ fontFamily: "'Syne', system-ui", fontSize: 13, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-0.01em', margin: '0 0 14px' }}>
+          <h2 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 16, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-0.01em', margin: '0 0 14px' }}>
             Recent Activity
           </h2>
           <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>

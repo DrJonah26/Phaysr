@@ -9,8 +9,8 @@ const MEMBERS = [
 ];
 
 const ROLE_STYLES: Record<string, { bg: string; color: string; border: string; avatarBorder: string }> = {
-  Owner:  { bg: 'rgba(190,255,0,0.10)', color: 'var(--accent)',  border: 'rgba(190,255,0,0.22)',   avatarBorder: 'rgba(190,255,0,0.30)' },
-  Admin:  { bg: 'rgba(255,153,0,0.10)', color: 'var(--orange)',  border: 'rgba(255,153,0,0.22)',   avatarBorder: 'rgba(255,153,0,0.30)' },
+  Owner:  { bg: 'rgba(156,89,89,0.10)', color: 'var(--accent)',  border: 'rgba(156,89,89,0.25)',   avatarBorder: 'rgba(156,89,89,0.30)' },
+  Admin:  { bg: 'rgba(184,121,30,0.10)', color: 'var(--orange)', border: 'rgba(184,121,30,0.25)',  avatarBorder: 'rgba(184,121,30,0.30)' },
   Member: { bg: 'var(--elevated)',       color: 'var(--text-2)',  border: 'var(--border)',          avatarBorder: 'var(--border)' },
   Viewer: { bg: 'transparent',           color: 'var(--text-3)',  border: 'var(--border-subtle)',   avatarBorder: 'var(--border-subtle)' },
 };
@@ -24,7 +24,7 @@ export function Team() {
 
       {/* ── Header ── */}
       <header style={{ marginBottom: 36 }}>
-        <h1 style={{ fontFamily: "'Syne', system-ui", fontSize: 28, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-0.03em', lineHeight: 1.1, margin: '0 0 5px' }}>
+        <h1 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 32, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-0.02em', lineHeight: 1.1, margin: '0 0 5px' }}>
           Team
         </h1>
         <p style={{ fontSize: 13, color: 'var(--text-2)', margin: 0 }}>Manage members and their access</p>
@@ -32,7 +32,7 @@ export function Team() {
 
       {/* ── Invite ── */}
       <section className="card" style={{ padding: 24, marginBottom: 10 }}>
-        <h2 style={{ fontFamily: "'Syne', system-ui", fontSize: 13, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-0.01em', margin: '0 0 16px' }}>
+        <h2 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 17, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-0.01em', margin: '0 0 16px' }}>
           Invite member
         </h2>
         <div style={{ display: 'flex', gap: 8 }}>
@@ -67,7 +67,7 @@ export function Team() {
           borderBottom: '1px solid var(--border)',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         }}>
-          <h2 style={{ fontFamily: "'Syne', system-ui", fontSize: 13, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-0.01em', margin: 0 }}>
+          <h2 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 17, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-0.01em', margin: 0 }}>
             Members
           </h2>
           <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>

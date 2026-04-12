@@ -279,7 +279,6 @@ export function App({ config, hostElement }: AppProps) {
           </svg>
         </button>
       </div>
-      <div class="dock-hint">Answer appears next to the cursor</div>
     </div>
   );
 }

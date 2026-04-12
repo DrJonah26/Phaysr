@@ -82,19 +82,19 @@ export function App() {
             flexShrink: 0,
           }}>
             <span style={{
-              fontFamily: "'Syne', system-ui",
-              fontSize: 14,
-              fontWeight: 800,
-              color: '#0C0C0F',
+              fontFamily: "'Cormorant Garamond', Georgia, serif",
+              fontSize: 15,
+              fontWeight: 700,
+              color: '#FFFFFF',
               lineHeight: 1,
             }}>A</span>
           </div>
           <span style={{
-            fontFamily: "'Syne', system-ui",
-            fontSize: 15,
+            fontFamily: "'Cormorant Garamond', Georgia, serif",
+            fontSize: 17,
             fontWeight: 700,
             color: 'var(--text-1)',
-            letterSpacing: '-0.02em',
+            letterSpacing: '-0.01em',
           }}>Acme</span>
         </div>
 
