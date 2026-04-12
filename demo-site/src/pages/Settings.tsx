@@ -1,15 +1,13 @@
 import { useState } from 'react';
 
 export function Settings() {
-  const [name, setName] = useState('Jonah Davidson');
-  const [email, setEmail] = useState('jonah@acme.com');
-  const [notifications, setNotifications] = useState(true);
-
-  // Password change state
+  const [name,             setName]             = useState('Jonah Davidson');
+  const [email,            setEmail]            = useState('jonah@acme.com');
+  const [notifications,    setNotifications]    = useState(true);
   const [showPasswordForm, setShowPasswordForm] = useState(false);
-  const [currentPw, setCurrentPw] = useState('');
-  const [newPw, setNewPw] = useState('');
-  const [confirmPw, setConfirmPw] = useState('');
+  const [currentPw,        setCurrentPw]        = useState('');
+  const [newPw,            setNewPw]            = useState('');
+  const [confirmPw,        setConfirmPw]        = useState('');
 
   const handlePasswordSave = () => {
     if (!currentPw || !newPw || newPw !== confirmPw) return;
@@ -17,110 +15,92 @@ export function Settings() {
     setCurrentPw(''); setNewPw(''); setConfirmPw('');
   };
 
+  const sectionTitle = (text: string) => (
+    <h2 style={{ fontFamily: "'Syne', system-ui", fontSize: 13, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-0.01em', margin: 0 }}>
+      {text}
+    </h2>
+  );
+
   return (
-    <div className="p-8 max-w-3xl">
-      <header className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-900">Settings</h1>
-        <p className="text-slate-500 mt-1">Manage your account preferences</p>
+    <div style={{ padding: '40px 48px', maxWidth: 640 }}>
+
+      {/* ── Header ── */}
+      <header style={{ marginBottom: 36 }}>
+        <h1 style={{ fontFamily: "'Syne', system-ui", fontSize: 28, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-0.03em', lineHeight: 1.1, margin: '0 0 5px' }}>
+          Settings
+        </h1>
+        <p style={{ fontSize: 13, color: 'var(--text-2)', margin: 0 }}>Manage your account preferences</p>
       </header>
 
-      {/* Profile */}
-      <section className="bg-white rounded-xl border border-slate-200 p-6 mb-6">
-        <h2 className="font-semibold text-slate-900 mb-4">Profile</h2>
-        <div className="space-y-4">
+      {/* ── Profile ── */}
+      <section className="card" style={{ padding: 24, marginBottom: 10 }}>
+        <div style={{ marginBottom: 18 }}>{sectionTitle('Profile')}</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Name</label>
+            <label className="field-label">Name</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               data-testid="profile-name-input"
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+              className="field-input"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
+            <label className="field-label">Email</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               data-testid="profile-email-input"
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+              className="field-input"
             />
           </div>
-          <button
-            data-testid="save-profile-btn"
-            className="px-4 py-2 bg-slate-900 text-white text-sm font-medium rounded-lg hover:bg-slate-800"
-          >
-            Save changes
-          </button>
+          <div>
+            <button data-testid="save-profile-btn" className="btn-primary">Save changes</button>
+          </div>
         </div>
       </section>
 
-      {/* Security */}
-      <section className="bg-white rounded-xl border border-slate-200 p-6 mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold text-slate-900">Security</h2>
+      {/* ── Security ── */}
+      <section className="card" style={{ padding: 24, marginBottom: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+          {sectionTitle('Security')}
           {!showPasswordForm && (
             <button
               data-testid="change-password-btn"
               onClick={() => setShowPasswordForm(true)}
-              className="text-sm text-indigo-600 hover:text-indigo-700 font-medium"
+              style={{
+                background: 'none', border: 'none', cursor: 'pointer',
+                fontSize: 12, color: 'var(--accent)',
+                fontFamily: "'Figtree', system-ui", fontWeight: 500, padding: 0,
+              }}
             >
               Change password
             </button>
           )}
         </div>
-
         {!showPasswordForm ? (
-          <div className="text-sm text-slate-500">
+          <p style={{ fontSize: 12, color: 'var(--text-3)', margin: 0 }}>
             Password last changed 3 months ago.
-          </div>
+          </p>
         ) : (
-          <div className="space-y-4">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Current password</label>
-              <input
-                type="password"
-                value={currentPw}
-                onChange={(e) => setCurrentPw(e.target.value)}
-                data-testid="current-password-input"
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
-              />
+              <label className="field-label">Current password</label>
+              <input type="password" value={currentPw} onChange={(e) => setCurrentPw(e.target.value)} data-testid="current-password-input" className="field-input" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">New password</label>
-              <input
-                type="password"
-                value={newPw}
-                onChange={(e) => setNewPw(e.target.value)}
-                data-testid="new-password-input"
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
-              />
+              <label className="field-label">New password</label>
+              <input type="password" value={newPw} onChange={(e) => setNewPw(e.target.value)} data-testid="new-password-input" className="field-input" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Confirm new password</label>
-              <input
-                type="password"
-                value={confirmPw}
-                onChange={(e) => setConfirmPw(e.target.value)}
-                data-testid="confirm-password-input"
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
-              />
+              <label className="field-label">Confirm new password</label>
+              <input type="password" value={confirmPw} onChange={(e) => setConfirmPw(e.target.value)} data-testid="confirm-password-input" className="field-input" />
             </div>
-            <div className="flex gap-3">
-              <button
-                data-testid="save-password-btn"
-                onClick={handlePasswordSave}
-                className="px-4 py-2 bg-slate-900 text-white text-sm font-medium rounded-lg hover:bg-slate-800"
-              >
-                Update password
-              </button>
-              <button
-                data-testid="cancel-password-btn"
-                onClick={() => { setShowPasswordForm(false); setCurrentPw(''); setNewPw(''); setConfirmPw(''); }}
-                className="px-4 py-2 border border-slate-300 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50"
-              >
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button data-testid="save-password-btn" className="btn-primary" onClick={handlePasswordSave}>Update password</button>
+              <button data-testid="cancel-password-btn" className="btn-ghost" onClick={() => { setShowPasswordForm(false); setCurrentPw(''); setNewPw(''); setConfirmPw(''); }}>
                 Cancel
               </button>
             </div>
@@ -128,44 +108,73 @@ export function Settings() {
         )}
       </section>
 
-      {/* Notifications */}
-      <section className="bg-white rounded-xl border border-slate-200 p-6 mb-6">
-        <h2 className="font-semibold text-slate-900 mb-4">Notifications</h2>
-        <label className="flex items-center justify-between">
+      {/* ── Notifications ── */}
+      <section className="card" style={{ padding: 24, marginBottom: 10 }}>
+        <div style={{ marginBottom: 16 }}>{sectionTitle('Notifications')}</div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
-            <div className="text-sm font-medium text-slate-900">Email notifications</div>
-            <div className="text-xs text-slate-500">Get updates about your projects</div>
+            <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-1)' }}>Email notifications</div>
+            <div style={{ fontSize: 11, color: 'var(--text-3)', marginTop: 2 }}>Get updates about your projects</div>
           </div>
           <button
             onClick={() => setNotifications((n) => !n)}
             data-testid="notifications-toggle"
-            className={`relative w-11 h-6 rounded-full transition-colors ${notifications ? 'bg-indigo-600' : 'bg-slate-300'}`}
+            style={{
+              position: 'relative',
+              width: 42, height: 22,
+              borderRadius: 11,
+              background: notifications ? 'var(--accent)' : 'var(--elevated)',
+              border: `1px solid ${notifications ? 'transparent' : 'var(--border)'}`,
+              cursor: 'pointer',
+              transition: 'background 0.15s',
+              padding: 0,
+              flexShrink: 0,
+            }}
           >
-            <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full transition-transform ${notifications ? 'translate-x-5' : 'translate-x-0.5'}`} />
+            <span style={{
+              position: 'absolute',
+              top: 2, left: notifications ? 20 : 2,
+              width: 16, height: 16,
+              borderRadius: '50%',
+              background: notifications ? '#0C0C0F' : 'var(--text-3)',
+              transition: 'left 0.15s',
+            }} />
           </button>
-        </label>
+        </div>
       </section>
 
-      {/* Plan */}
-      <section className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl border border-indigo-200 p-6">
-        <div className="flex items-start justify-between gap-4">
+      {/* ── Plan ── */}
+      <section style={{
+        padding: 24,
+        borderRadius: 10,
+        border: '1px solid rgba(190,255,0,0.2)',
+        background: 'rgba(190,255,0,0.04)',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <h2 className="font-semibold text-slate-900">Current plan: Free</h2>
-              <span className="text-xs px-2 py-0.5 bg-slate-200 text-slate-700 rounded">Free</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+              {sectionTitle('Current plan')}
+              <span style={{
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: 9, fontWeight: 500,
+                padding: '2px 7px',
+                background: 'var(--elevated)',
+                color: 'var(--text-2)',
+                borderRadius: 4,
+                textTransform: 'uppercase', letterSpacing: '0.08em',
+                border: '1px solid var(--border)',
+              }}>Free</span>
             </div>
-            <p className="text-sm text-slate-600 mb-3">
+            <p style={{ fontSize: 12, color: 'var(--text-2)', margin: 0, lineHeight: 1.65 }}>
               Upgrade to Pro for unlimited projects, advanced analytics, and priority support.
             </p>
           </div>
-          <button
-            data-testid="upgrade-plan-btn"
-            className="px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded-lg hover:bg-indigo-700 whitespace-nowrap shadow-sm"
-          >
+          <button data-testid="upgrade-plan-btn" className="btn-primary" style={{ marginTop: 2, flexShrink: 0 }}>
             Upgrade to Pro
           </button>
         </div>
       </section>
+
     </div>
   );
 }

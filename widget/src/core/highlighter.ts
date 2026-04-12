@@ -7,6 +7,7 @@ const pendingHighlights = new Map<string, () => void>();
 
 let lastCursorPos: { x: number; y: number } | null = null;
 let currentHighlightCleanup: (() => void) | null = null;
+let persistedCursorEl: HTMLElement | null = null;
 
 let continueHandler: (() => void) | null = null;
 let guideOutputEl: HTMLDivElement | null = null;
@@ -15,12 +16,13 @@ let guideOutputMetaEl: HTMLDivElement | null = null;
 let guideOutputButtonEl: HTMLButtonElement | null = null;
 let guideOutputColor = '#3B82F6';
 let lastHighlightRect: DOMRect | null = null;
+let lastGuideOutputPos: { left: number; top: number } | null = null;
+let guideOutputPendingReveal = false; // true when we have text but no target rect yet
 
 export interface GuideOutputOptions {
   text: string;
   color?: string;
   isLoading?: boolean;
-  advisorActive?: boolean;
   canContinue?: boolean;
   continueLabel?: string;
   onContinue?: () => void;
@@ -107,6 +109,9 @@ function ensureGuideOutput() {
   el.style.pointerEvents = 'auto';
   el.style.fontFamily = 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
   el.style.color = '#101219';
+  el.style.transitionProperty = 'left, top';
+  el.style.transitionTimingFunction = 'cubic-bezier(0.25, 0.1, 0.25, 1)';
+  el.style.transitionDuration = '0s'; // set dynamically per move based on distance
 
   const text = document.createElement('div');
   text.style.fontSize = '12px';
@@ -168,7 +173,15 @@ function rectsOverlap(
 }
 
 function positionGuideOutput() {
-  if (!guideOutputEl || guideOutputEl.style.display === 'none') return;
+  if (!guideOutputEl) return;
+
+  const tgt = lastHighlightRect;
+
+  // No highlight target: if block is already placed, stay put — don't drift to cursor
+  if (!tgt && lastGuideOutputPos) return;
+
+  // No anchor at all yet — can't meaningfully position
+  if (!tgt && !lastCursorPos) return;
 
   const margin = 12;
   const gap = 14;
@@ -177,16 +190,13 @@ function positionGuideOutput() {
   const gW = guideOutputEl.offsetWidth || 280;
   const gH = guideOutputEl.offsetHeight || 120;
 
-  const tgt = lastHighlightRect;
-
-  // Candidate positions in priority order: right, left, below, above target element
+  // Candidate positions: right, left, below, above target element
   const candidates: Array<{ left: number; top: number }> = tgt
     ? [
         { left: tgt.right + gap,                        top: tgt.top + tgt.height / 2 - gH / 2 },
         { left: tgt.left - gW - gap,                    top: tgt.top + tgt.height / 2 - gH / 2 },
         { left: tgt.left + tgt.width / 2 - gW / 2,     top: tgt.bottom + gap },
         { left: tgt.left + tgt.width / 2 - gW / 2,     top: tgt.top - gH - gap },
-        // Cursor-based fallback
         { left: (lastCursorPos?.x ?? W - 80) + gap,    top: (lastCursorPos?.y ?? H - 130) - gH / 2 },
       ]
     : [{ left: (lastCursorPos?.x ?? 260) + gap, top: (lastCursorPos?.y ?? H - 130) - gH / 2 }];
@@ -197,15 +207,36 @@ function positionGuideOutput() {
     const g = { left, top, right: left + gW, bottom: top + gH };
 
     if (!tgt || !rectsOverlap(g, tgt)) {
-      guideOutputEl.style.left = `${Math.round(left)}px`;
-      guideOutputEl.style.top  = `${Math.round(top)}px`;
+      const newLeft = Math.round(left);
+      const newTop  = Math.round(top);
+
+      // Distance-based duration — same formula as cursor animation
+      // Only animate when visible (avoid weird transition on first reveal)
+      const isVisible = guideOutputEl.style.display !== 'none';
+      if (isVisible && lastGuideOutputPos) {
+        const dx = newLeft - lastGuideOutputPos.left;
+        const dy = newTop  - lastGuideOutputPos.top;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const ms = Math.max(800, Math.min(dist * 2.2, 3500));
+        guideOutputEl.style.transitionDuration = `${ms}ms, ${ms}ms`;
+      } else {
+        // Snap to position instantly when hidden (pre-positioning)
+        guideOutputEl.style.transitionDuration = '0ms, 0ms';
+      }
+
+      guideOutputEl.style.left = `${newLeft}px`;
+      guideOutputEl.style.top  = `${newTop}px`;
+      lastGuideOutputPos = { left: newLeft, top: newTop };
       return;
     }
   }
 
   // Absolute fallback: top-left corner
-  guideOutputEl.style.left = `${margin}px`;
-  guideOutputEl.style.top  = `${margin}px`;
+  const newLeft = margin;
+  const newTop  = margin;
+  guideOutputEl.style.left = `${newLeft}px`;
+  guideOutputEl.style.top  = `${newTop}px`;
+  lastGuideOutputPos = { left: newLeft, top: newTop };
 }
 
 function updateCursorAnchor(x: number, y: number) {
@@ -254,26 +285,31 @@ async function drawRingWithCursor(target: Element, color: string): Promise<void>
   await waitForScrollEnd();
 
   const rect = target.getBoundingClientRect();
+  // Set highlight rect early so guide output calculates its final
+  // non-overlapping position before the cursor animation starts —
+  // combined with CSS transition this avoids the teleport-on-arrival.
+  lastHighlightRect = rect;
+  positionGuideOutput();
+  // If guide output has text but was waiting for a target, reveal it now
+  if (guideOutputPendingReveal && guideOutputEl && guideOutputEl.style.display === 'none') {
+    guideOutputPendingReveal = false;
+    guideOutputEl.style.display = 'block';
+  }
+
   const endX = rect.left + rect.width * 0.3;
   const endY = rect.top - 10;
 
-  const startX = lastCursorPos?.x ?? window.innerWidth - 72;
-  const startY = lastCursorPos?.y ?? window.innerHeight - 72;
+  // If a cursor is already on screen, fly from its position.
+  // Otherwise fade-in directly at the target — no distracting entry flight.
+  const hasPreviousCursor = persistedCursorEl !== null || lastCursorPos !== null;
 
-  const midX = (startX + endX) / 2;
-  const midY = (startY + endY) / 2;
-  const ddx = endX - startX;
-  const ddy = endY - startY;
-  const len = Math.sqrt(ddx * ddx + ddy * ddy) || 1;
-
-  const arcH = Math.min(len * 0.38, 220);
-  const ctrlX = Math.max(20, Math.min(window.innerWidth - 20, midX + (-ddy / len) * arcH));
-  const ctrlY = Math.max(20, Math.min(window.innerHeight - 20, midY + (ddx / len) * arcH));
-  const duration = Math.max(1000, Math.min(len * 2.2, 3000));
+  // Remove any previously persisted cursor before creating the new one
+  persistedCursorEl?.remove();
+  persistedCursorEl = null;
 
   const cursor = buildCursorEl(color);
-  cursor.style.left = `${startX - 7}px`;
-  cursor.style.top = `${startY - 7}px`;
+  cursor.style.left = `${endX - 7}px`;
+  cursor.style.top = `${endY - 7}px`;
   document.body.appendChild(cursor);
 
   let intervalId = 0;
@@ -287,13 +323,40 @@ async function drawRingWithCursor(target: Element, color: string): Promise<void>
     window.clearInterval(intervalId);
     window.clearTimeout(fallbackId);
     ring?.remove();
-    cursor.remove();
+    // Don't remove cursor — keep it visible while AI thinks next step
+    persistedCursorEl = cursor;
     if (currentHighlightCleanup === cleanup) currentHighlightCleanup = null;
   };
   currentHighlightCleanup = cleanup;
 
-  await animateCursor(cursor, startX, startY, ctrlX, ctrlY, endX, endY, duration);
-  if (cancelled) return;
+  if (hasPreviousCursor) {
+    // Fly from previous cursor position along a curved arc
+    const startX = lastCursorPos?.x ?? endX;
+    const startY = lastCursorPos?.y ?? endY;
+    cursor.style.left = `${startX - 7}px`;
+    cursor.style.top = `${startY - 7}px`;
+
+    const midX = (startX + endX) / 2;
+    const midY = (startY + endY) / 2;
+    const ddx = endX - startX;
+    const ddy = endY - startY;
+    const len = Math.sqrt(ddx * ddx + ddy * ddy) || 1;
+    const arcH = Math.min(len * 0.38, 220);
+    const ctrlX = Math.max(20, Math.min(window.innerWidth - 20, midX + (-ddy / len) * arcH));
+    const ctrlY = Math.max(20, Math.min(window.innerHeight - 20, midY + (ddx / len) * arcH));
+    const duration = Math.max(1000, Math.min(len * 2.2, 3000));
+
+    await animateCursor(cursor, startX, startY, ctrlX, ctrlY, endX, endY, duration);
+    if (cancelled) return;
+  } else {
+    // First appearance — fade in at target position
+    cursor.style.opacity = '0';
+    cursor.style.transition = 'opacity 0.4s ease-out';
+    requestAnimationFrame(() => {
+      if (cancelled) return;
+      cursor.style.opacity = '1';
+    });
+  }
 
   cursor.style.transform = 'scale(1)';
   cursor.style.animation = '__web_widget_cursor_wait__ 1.2s ease-in-out infinite';
@@ -341,14 +404,17 @@ export function showGuideOutput(options: GuideOutputOptions) {
   guideOutputButtonEl.style.background = guideOutputColor;
 
   const cleanText = options.text.trim();
-  guideOutputTextEl.textContent = cleanText || (options.isLoading ? '...' : '');
 
-  if (options.advisorActive) {
-    guideOutputMetaEl.textContent = 'Advisor denkt nach...';
-  } else if (options.isLoading) {
-    guideOutputMetaEl.textContent = 'KI denkt nach...';
-  } else if (options.waitingForNav) {
-    guideOutputMetaEl.textContent = 'Warte auf Seitenwechsel...';
+  // Hide while AI is loading with no text yet — block reappears once text streams in
+  if (options.isLoading && !cleanText) {
+    guideOutputEl.style.display = 'none';
+    return;
+  }
+
+  guideOutputTextEl.textContent = cleanText;
+
+  if (options.waitingForNav) {
+    guideOutputMetaEl.textContent = 'Waiting for navigation...';
   } else {
     guideOutputMetaEl.textContent = '';
   }
@@ -362,7 +428,7 @@ export function showGuideOutput(options: GuideOutputOptions) {
       : null;
 
   const showButton = canContinue || isDone;
-  guideOutputButtonEl.textContent = isDone ? 'Fertig ✓' : (options.continueLabel ?? 'Continue');
+  guideOutputButtonEl.textContent = isDone ? 'Done ✓' : (options.continueLabel ?? 'Continue');
   guideOutputButtonEl.style.display = showButton ? 'inline-flex' : 'none';
   guideOutputButtonEl.style.background = isDone ? '#22c55e' : guideOutputColor;
   guideOutputButtonEl.disabled = Boolean(options.isLoading) || !showButton;
@@ -370,8 +436,29 @@ export function showGuideOutput(options: GuideOutputOptions) {
   guideOutputButtonEl.style.cursor = guideOutputButtonEl.disabled ? 'not-allowed' : 'pointer';
 
   const shouldHide = !cleanText && !options.isLoading && !canContinue;
-  guideOutputEl.style.display = shouldHide ? 'none' : 'block';
+  if (shouldHide) {
+    guideOutputEl.style.display = 'none';
+    return;
+  }
+
   positionGuideOutput();
+
+  // If we have no anchor yet (first step, highlight hasn't arrived),
+  // stay hidden until drawRingWithCursor pre-positions us and reveals.
+  if (!lastHighlightRect && !lastGuideOutputPos) {
+    guideOutputPendingReveal = true;
+    return;
+  }
+
+  guideOutputPendingReveal = false;
+  guideOutputEl.style.display = 'block';
+}
+
+/** Hide visually but keep all state (position, cursor, colors) intact.
+ *  Use this at the start of a new loading cycle. */
+export function collapseGuideOutput() {
+  if (guideOutputEl) guideOutputEl.style.display = 'none';
+  guideOutputPendingReveal = false;
 }
 
 export function hideGuideOutput() {
@@ -381,6 +468,8 @@ export function hideGuideOutput() {
   guideOutputTextEl = null;
   guideOutputMetaEl = null;
   guideOutputButtonEl = null;
+  lastGuideOutputPos = null;
+  guideOutputPendingReveal = false;
 }
 
 export function clearHighlights() {
@@ -388,7 +477,7 @@ export function clearHighlights() {
   pendingHighlights.forEach((cancel) => cancel());
   pendingHighlights.clear();
   document.querySelectorAll(`.${RING_CLASS}`).forEach((el) => el.remove());
-  document.getElementById(CURSOR_ID)?.remove();
+  // Cursor intentionally NOT removed here — it stays visible while AI thinks
   lastHighlightRect = null;
 }
 

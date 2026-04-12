@@ -8,6 +8,7 @@ import {
   clearHighlights,
   showGuideOutput,
   hideGuideOutput,
+  collapseGuideOutput,
 } from '../core/highlighter.js';
 import { streamChat } from '../core/sse-client.js';
 
@@ -69,9 +70,17 @@ export function App({ config, hostElement }: AppProps) {
     setIsLoading(true);
     clearHighlights();
 
+    // When user clicks Continue (same page): inject a fake exchange into history
+    // so Claude sees its own confirmation that the step was completed.
+    // This is far more reliable than system prompt rules.
+    if (isContinuation && skipContext) {
+      historyRef.current.push({ role: 'continuation', content: 'Done.' });
+      historyRef.current.push({ role: 'assistant', content: 'Step completed.' });
+    }
+
     const apiQuestion = isContinuation
       ? (skipContext
-          ? 'Erledigt. Was ist der nächste Schritt?'
+          ? 'What is the next step?'
           : `[CONTINUE] ${question}`)
       : question;
 
@@ -89,16 +98,10 @@ export function App({ config, hostElement }: AppProps) {
     let screenshot = '';
     let assistantText = '';
     let aiCanContinue: 'yes' | 'no' | 'done' = 'yes';
-    let advisorThinking = false;
     let hadError = false;
 
-    showGuideOutput({
-      text: '',
-      color: config.color,
-      isLoading: true,
-      advisorActive: false,
-      canContinue: false,
-    });
+    // Visually hide guide output while AI loads — keeps position/cursor state intact
+    collapseGuideOutput();
 
     try {
       snapshot = getDOMSnapshot(hostElement);
@@ -131,22 +134,12 @@ export function App({ config, hostElement }: AppProps) {
             text: assistantText,
             color: config.color,
             isLoading: true,
-            advisorActive: advisorThinking,
             canContinue: false,
           });
         } else if (ev.type === 'highlight') {
           highlightElement(ev.selector, config.color);
         } else if (ev.type === 'can_continue') {
           aiCanContinue = ev.value;
-        } else if (ev.type === 'advisor') {
-          advisorThinking = true;
-          showGuideOutput({
-            text: assistantText,
-            color: config.color,
-            isLoading: true,
-            advisorActive: true,
-            canContinue: false,
-          });
         } else if (ev.type === 'error') {
           hadError = true;
           assistantText = assistantText || `Fehler: ${ev.message}`;
@@ -155,11 +148,10 @@ export function App({ config, hostElement }: AppProps) {
             text: assistantText,
             color: config.color,
             isLoading: false,
-            advisorActive: false,
             canContinue: false,
           });
         } else if (ev.type === 'done') {
-          advisorThinking = false;
+          // stream complete
         }
       }
     } catch (err) {
@@ -171,7 +163,6 @@ export function App({ config, hostElement }: AppProps) {
         text: assistantText,
         color: config.color,
         isLoading: false,
-        advisorActive: false,
         canContinue: false,
       });
     }
@@ -201,7 +192,6 @@ export function App({ config, hostElement }: AppProps) {
       text: finalText,
       color: config.color,
       isLoading: false,
-      advisorActive: false,
       canContinue: showContinueButton,
       onContinue: showContinueButton ? handleContinue : undefined,
       continueLabel: 'Continue',
@@ -272,7 +262,7 @@ export function App({ config, hostElement }: AppProps) {
         <input
           class="dock-input"
           type="text"
-          placeholder={`Frag ${config.siteName}...`}
+          placeholder="Type here..."
           value={input}
           onInput={(e) => setInput((e.target as HTMLInputElement).value)}
           onKeyDown={handleInputKeyDown}
@@ -284,10 +274,12 @@ export function App({ config, hostElement }: AppProps) {
           disabled={isLoading || !input.trim()}
           aria-label="Send"
         >
-          Senden
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M5 12h14M13 6l6 6-6 6" />
+          </svg>
         </button>
       </div>
-      <div class="dock-hint">{isLoading ? 'KI antwortet...' : 'Antwort erscheint neben dem Anzeigepunkt'}</div>
+      <div class="dock-hint">Answer appears next to the cursor</div>
     </div>
   );
 }

@@ -9,7 +9,7 @@ export function getWidgetStyles(color: string): string {
     }
     .root {
       position: fixed;
-      left: 18px;
+      right: 18px;
       bottom: 18px;
       z-index: 2147483647;
       font-size: 12px;
@@ -17,7 +17,7 @@ export function getWidgetStyles(color: string): string {
       pointer-events: none;
       display: flex;
       flex-direction: column;
-      align-items: flex-start;
+      align-items: flex-end;
       gap: 6px;
     }
     .input-dock {
@@ -27,13 +27,11 @@ export function getWidgetStyles(color: string): string {
       gap: 8px;
       width: min(420px, calc(100vw - 32px));
       min-height: 40px;
-      padding: 6px 8px 6px 10px;
-      border-radius: 12px;
-      border: 1px solid rgba(15, 18, 24, 0.14);
-      background: rgba(255, 255, 255, 0.94);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.16);
+      padding: 5px 6px 5px 12px;
+      border-radius: 10px;
+      border: 3px solid ${color};
+      background: #D9D9D9;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
     }
     .dock-input {
       flex: 1;
@@ -45,21 +43,23 @@ export function getWidgetStyles(color: string): string {
       line-height: 1.3;
       padding: 2px 0;
       outline: none;
-      font-family: inherit;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
     }
     .dock-input::placeholder {
-      color: #7a8091;
+      color: #888899;
     }
     .dock-send {
       border: none;
-      border-radius: 8px;
-      padding: 6px 10px;
-      font-size: 12px;
-      font-weight: 600;
-      color: white;
-      background: ${color};
+      border-radius: 6px;
+      padding: 5px 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #000;
+      background: transparent;
       cursor: pointer;
       transition: transform 0.12s ease, opacity 0.12s ease;
+      flex-shrink: 0;
     }
     .dock-send:hover:not(:disabled) {
       transform: translateY(-1px);
@@ -79,7 +79,6 @@ export function getWidgetStyles(color: string): string {
 
     @media (max-width: 560px) {
       .root {
-        left: 10px;
         right: 10px;
         bottom: 10px;
       }

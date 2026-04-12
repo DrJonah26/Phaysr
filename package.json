@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.1",
   "scripts": {
-    "dev": "pnpm -r --parallel --filter=backend --filter=demo-site dev",
+    "dev": "pnpm -r --parallel --filter=widget --filter=backend --filter=demo-site dev",
     "dev:backend": "pnpm --filter backend dev",
     "dev:demo": "pnpm --filter demo-site dev",
     "build:widget": "pnpm --filter widget build",

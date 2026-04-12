@@ -23,216 +23,224 @@ const PLANS = [
   },
 ];
 
+const CheckIcon = ({ color }: { color: string }) => (
+  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M5 13l4 4L19 7"/>
+  </svg>
+);
+
 export function Billing() {
-  const [showUpgrade, setShowUpgrade] = useState(false);
+  const [showUpgrade,  setShowUpgrade]  = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [showCardForm, setShowCardForm] = useState(false);
-  const [cardNumber, setCardNumber] = useState('');
-  const [cardExpiry, setCardExpiry] = useState('');
-  const [cardCvc, setCardCvc] = useState('');
+  const [cardNumber,   setCardNumber]   = useState('');
+  const [cardExpiry,   setCardExpiry]   = useState('');
+  const [cardCvc,      setCardCvc]      = useState('');
 
-  const handleSelectPlan = () => {
-    if (!selectedPlan) return;
-    setShowCardForm(true);
-  };
+  const handleSelectPlan = () => { if (selectedPlan) setShowCardForm(true); };
 
   const handleConfirm = () => {
-    setShowUpgrade(false);
-    setShowCardForm(false);
-    setSelectedPlan(null);
+    setShowUpgrade(false); setShowCardForm(false); setSelectedPlan(null);
     setCardNumber(''); setCardExpiry(''); setCardCvc('');
   };
 
   return (
-    <div className="p-8 max-w-4xl">
-      <header className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-900">Billing</h1>
-        <p className="text-slate-500 mt-1">Manage your subscription and invoices</p>
+    <div style={{ padding: '40px 48px', maxWidth: 760 }}>
+
+      {/* ── Header ── */}
+      <header style={{ marginBottom: 36 }}>
+        <h1 style={{ fontFamily: "'Syne', system-ui", fontSize: 28, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-0.03em', lineHeight: 1.1, margin: '0 0 5px' }}>
+          Billing
+        </h1>
+        <p style={{ fontSize: 13, color: 'var(--text-2)', margin: 0 }}>Manage your subscription and invoices</p>
       </header>
 
-      {/* Current plan */}
-      <section className="bg-white rounded-xl border border-slate-200 p-6 mb-6">
-        <h2 className="font-semibold text-slate-900 mb-4">Current plan</h2>
-        <div className="flex items-center justify-between">
+      {/* ── Current plan ── */}
+      <section className="card" style={{ padding: 24, marginBottom: 10 }}>
+        <h2 style={{ fontFamily: "'Syne', system-ui", fontSize: 13, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-0.01em', margin: '0 0 14px' }}>
+          Current plan
+        </h2>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
-            <div className="flex items-center gap-2">
-              <span className="text-2xl font-bold text-slate-900">Free</span>
-              <span className="text-xs px-2 py-0.5 bg-slate-100 text-slate-600 rounded">$0/mo</span>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 26, fontWeight: 500, color: 'var(--text-1)', letterSpacing: '-0.03em' }}>
+                Free
+              </span>
+              <span style={{
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: 9, padding: '2px 7px',
+                background: 'var(--elevated)', color: 'var(--text-3)',
+                borderRadius: 4, border: '1px solid var(--border)',
+                textTransform: 'uppercase', letterSpacing: '0.07em',
+              }}>$0/mo</span>
             </div>
-            <div className="text-sm text-slate-500 mt-1">3 of 3 projects used</div>
+            <div style={{ fontSize: 11, color: 'var(--text-3)', marginTop: 5 }}>3 of 3 projects used</div>
           </div>
           <button
             data-testid="billing-upgrade-btn"
+            className="btn-primary"
             onClick={() => { setShowUpgrade(true); setShowCardForm(false); setSelectedPlan(null); }}
-            className="px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded-lg hover:bg-indigo-700"
           >
             Upgrade plan
           </button>
         </div>
       </section>
 
-      {/* Upgrade flow */}
+      {/* ── Choose plan ── */}
       {showUpgrade && !showCardForm && (
-        <section className="bg-white rounded-xl border border-indigo-200 p-6 mb-6 shadow-sm">
-          <h2 className="font-semibold text-slate-900 mb-1">Choose a plan</h2>
-          <p className="text-sm text-slate-500 mb-5">All plans include a 14-day free trial.</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
-            {PLANS.map((plan) => (
-              <button
-                key={plan.id}
-                data-testid={`plan-option-${plan.id}`}
-                onClick={() => setSelectedPlan(plan.id)}
-                className={`text-left p-4 rounded-xl border-2 transition-colors ${
-                  selectedPlan === plan.id
-                    ? 'border-indigo-600 bg-indigo-50'
-                    : 'border-slate-200 hover:border-slate-300'
-                }`}
-              >
-                <div className="flex items-baseline gap-1 mb-2">
-                  <span className="text-xl font-bold text-slate-900">{plan.price}</span>
-                  <span className="text-slate-500 text-sm">{plan.period}</span>
-                </div>
-                <div className="font-semibold text-slate-900 mb-2">{plan.name}</div>
-                <ul className="space-y-1">
-                  {plan.features.map((f) => (
-                    <li key={f} className="text-xs text-slate-600 flex items-center gap-1.5">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0">
-                        <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-              </button>
-            ))}
+        <section className="card" style={{ padding: 24, marginBottom: 10, borderColor: 'rgba(190,255,0,0.25)', boxShadow: '0 0 40px rgba(190,255,0,0.04)' }}>
+          <h2 style={{ fontFamily: "'Syne', system-ui", fontSize: 13, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-0.01em', margin: '0 0 3px' }}>
+            Choose a plan
+          </h2>
+          <p style={{ fontSize: 11, color: 'var(--text-3)', margin: '0 0 18px' }}>All plans include a 14-day free trial.</p>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 18 }}>
+            {PLANS.map((plan) => {
+              const sel = selectedPlan === plan.id;
+              return (
+                <button
+                  key={plan.id}
+                  data-testid={`plan-option-${plan.id}`}
+                  onClick={() => setSelectedPlan(plan.id)}
+                  style={{
+                    textAlign: 'left', padding: 18, borderRadius: 8,
+                    border: `1px solid ${sel ? 'var(--accent)' : 'var(--border)'}`,
+                    background: sel ? 'rgba(190,255,0,0.06)' : 'var(--elevated)',
+                    cursor: 'pointer',
+                    transition: 'border-color 0.1s, background 0.1s',
+                    boxShadow: sel ? '0 0 24px rgba(190,255,0,0.08)' : 'none',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 3, marginBottom: 4 }}>
+                    <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 22, fontWeight: 500, color: sel ? 'var(--accent)' : 'var(--text-1)', letterSpacing: '-0.03em' }}>
+                      {plan.price}
+                    </span>
+                    <span style={{ fontSize: 11, color: 'var(--text-3)' }}>{plan.period}</span>
+                  </div>
+                  <div style={{ fontFamily: "'Syne', system-ui", fontSize: 13, fontWeight: 700, color: sel ? 'var(--accent)' : 'var(--text-1)', letterSpacing: '-0.01em', marginBottom: 10 }}>
+                    {plan.name}
+                  </div>
+                  <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 5 }}>
+                    {plan.features.map((f) => (
+                      <li key={f} style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 11, color: 'var(--text-2)' }}>
+                        <CheckIcon color={sel ? 'var(--accent)' : 'var(--text-3)'} />
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+                </button>
+              );
+            })}
           </div>
-          <div className="flex gap-3">
-            <button
-              data-testid="billing-select-plan-btn"
-              onClick={handleSelectPlan}
-              disabled={!selectedPlan}
-              className="px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded-lg hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              Continue with {selectedPlan ? PLANS.find(p => p.id === selectedPlan)?.name : '…'}
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button data-testid="billing-select-plan-btn" className="btn-primary" onClick={handleSelectPlan} disabled={!selectedPlan}>
+              Continue with {selectedPlan ? PLANS.find((p) => p.id === selectedPlan)?.name : '…'}
             </button>
-            <button
-              data-testid="billing-cancel-upgrade-btn"
-              onClick={() => setShowUpgrade(false)}
-              className="px-4 py-2 border border-slate-300 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50"
-            >
-              Cancel
-            </button>
+            <button data-testid="billing-cancel-upgrade-btn" className="btn-ghost" onClick={() => setShowUpgrade(false)}>Cancel</button>
           </div>
         </section>
       )}
 
-      {/* Card entry */}
+      {/* ── Card entry ── */}
       {showUpgrade && showCardForm && (
-        <section className="bg-white rounded-xl border border-indigo-200 p-6 mb-6 shadow-sm">
-          <h2 className="font-semibold text-slate-900 mb-1">Payment details</h2>
-          <p className="text-sm text-slate-500 mb-5">You won't be charged until your trial ends.</p>
-          <div className="space-y-4">
+        <section className="card" style={{ padding: 24, marginBottom: 10, borderColor: 'rgba(190,255,0,0.25)' }}>
+          <h2 style={{ fontFamily: "'Syne', system-ui", fontSize: 13, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-0.01em', margin: '0 0 3px' }}>
+            Payment details
+          </h2>
+          <p style={{ fontSize: 11, color: 'var(--text-3)', margin: '0 0 18px' }}>You won't be charged until your trial ends.</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Card number</label>
-              <input
-                type="text"
-                placeholder="1234 5678 9012 3456"
-                value={cardNumber}
-                onChange={(e) => setCardNumber(e.target.value)}
-                data-testid="card-number-input"
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
-              />
+              <label className="field-label">Card number</label>
+              <input type="text" placeholder="1234 5678 9012 3456" value={cardNumber} onChange={(e) => setCardNumber(e.target.value)} data-testid="card-number-input" className="field-input" />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Expiry</label>
-                <input
-                  type="text"
-                  placeholder="MM / YY"
-                  value={cardExpiry}
-                  onChange={(e) => setCardExpiry(e.target.value)}
-                  data-testid="card-expiry-input"
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
-                />
+                <label className="field-label">Expiry</label>
+                <input type="text" placeholder="MM / YY" value={cardExpiry} onChange={(e) => setCardExpiry(e.target.value)} data-testid="card-expiry-input" className="field-input" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">CVC</label>
-                <input
-                  type="text"
-                  placeholder="123"
-                  value={cardCvc}
-                  onChange={(e) => setCardCvc(e.target.value)}
-                  data-testid="card-cvc-input"
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
-                />
+                <label className="field-label">CVC</label>
+                <input type="text" placeholder="123" value={cardCvc} onChange={(e) => setCardCvc(e.target.value)} data-testid="card-cvc-input" className="field-input" />
               </div>
             </div>
-            <div className="flex gap-3">
-              <button
-                data-testid="billing-confirm-btn"
-                onClick={handleConfirm}
-                className="px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded-lg hover:bg-indigo-700"
-              >
-                Start free trial
-              </button>
-              <button
-                data-testid="billing-back-btn"
-                onClick={() => setShowCardForm(false)}
-                className="px-4 py-2 border border-slate-300 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50"
-              >
-                Back
-              </button>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button data-testid="billing-confirm-btn" className="btn-primary" onClick={handleConfirm}>Start free trial</button>
+              <button data-testid="billing-back-btn" className="btn-ghost" onClick={() => setShowCardForm(false)}>Back</button>
             </div>
           </div>
         </section>
       )}
 
-      {/* Payment method */}
-      <section className="bg-white rounded-xl border border-slate-200 p-6 mb-6">
-        <h2 className="font-semibold text-slate-900 mb-4">Payment method</h2>
-        <div className="flex items-center justify-between">
-          <div className="text-sm text-slate-500">No payment method on file</div>
-          <button
-            data-testid="add-payment-btn"
-            className="px-3 py-1.5 border border-slate-300 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50"
-          >
-            Add card
-          </button>
+      {/* ── Payment method ── */}
+      <section className="card" style={{ padding: 24, marginBottom: 10 }}>
+        <h2 style={{ fontFamily: "'Syne', system-ui", fontSize: 13, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-0.01em', margin: '0 0 14px' }}>
+          Payment method
+        </h2>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <span style={{ fontSize: 12, color: 'var(--text-3)' }}>No payment method on file</span>
+          <button data-testid="add-payment-btn" className="btn-ghost" style={{ padding: '6px 12px', fontSize: 12 }}>Add card</button>
         </div>
       </section>
 
-      {/* Invoices */}
-      <section className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-        <div className="p-6 border-b border-slate-200">
-          <h2 className="font-semibold text-slate-900">Invoice history</h2>
+      {/* ── Invoices ── */}
+      <section className="card" style={{ overflow: 'hidden' }}>
+        <div style={{ padding: '16px 24px', borderBottom: '1px solid var(--border)' }}>
+          <h2 style={{ fontFamily: "'Syne', system-ui", fontSize: 13, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-0.01em', margin: 0 }}>
+            Invoice history
+          </h2>
         </div>
-        <table className="w-full">
-          <thead className="bg-slate-50 text-xs uppercase text-slate-500">
-            <tr>
-              <th className="text-left px-6 py-3 font-medium">Invoice</th>
-              <th className="text-left px-6 py-3 font-medium">Date</th>
-              <th className="text-left px-6 py-3 font-medium">Amount</th>
-              <th className="text-left px-6 py-3 font-medium">Status</th>
-              <th className="px-6 py-3" />
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr style={{ background: 'var(--elevated)', borderBottom: '1px solid var(--border-subtle)' }}>
+              {['Invoice', 'Date', 'Amount', 'Status', ''].map((h, i) => (
+                <th key={i} style={{
+                  padding: '9px 24px', textAlign: i === 4 ? 'right' : 'left',
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontSize: 9, fontWeight: 500, color: 'var(--text-3)',
+                  textTransform: 'uppercase', letterSpacing: '0.08em',
+                }}>
+                  {h}
+                </th>
+              ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-200 text-sm">
-            {INVOICES.map((inv) => (
-              <tr key={inv.id} className="hover:bg-slate-50">
-                <td className="px-6 py-3 font-medium text-slate-900">{inv.id}</td>
-                <td className="px-6 py-3 text-slate-600">{inv.date}</td>
-                <td className="px-6 py-3 text-slate-900">{inv.amount}</td>
-                <td className="px-6 py-3">
-                  <span className="inline-flex px-2 py-0.5 text-xs font-medium rounded-full bg-emerald-100 text-emerald-700">{inv.status}</span>
+          <tbody>
+            {INVOICES.map((inv, idx) => (
+              <tr
+                key={inv.id}
+                style={{ borderBottom: idx < INVOICES.length - 1 ? '1px solid var(--border-subtle)' : 'none', transition: 'background 0.1s' }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--elevated)')}
+                onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+              >
+                <td style={{ padding: '12px 24px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 500, color: 'var(--text-1)' }}>
+                  {inv.id}
                 </td>
-                <td className="px-6 py-3 text-right">
-                  <button className="text-indigo-600 hover:text-indigo-700 text-sm font-medium">Download</button>
+                <td style={{ padding: '12px 24px', fontSize: 12, color: 'var(--text-2)' }}>{inv.date}</td>
+                <td style={{ padding: '12px 24px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: 'var(--text-1)' }}>{inv.amount}</td>
+                <td style={{ padding: '12px 24px' }}>
+                  <span style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 5,
+                    padding: '2px 8px', borderRadius: 4,
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontSize: 9, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.06em',
+                    background: 'rgba(0, 207, 120, 0.10)',
+                    color: 'var(--green)',
+                    border: '1px solid rgba(0, 207, 120, 0.20)',
+                  }}>
+                    <span style={{ width: 4, height: 4, borderRadius: '50%', background: 'var(--green)' }} />
+                    {inv.status}
+                  </span>
+                </td>
+                <td style={{ padding: '12px 24px', textAlign: 'right' }}>
+                  <button style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, fontFamily: "'Figtree', system-ui", color: 'var(--accent)', fontWeight: 500, padding: 0 }}>
+                    Download
+                  </button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </section>
+
     </div>
   );
 }

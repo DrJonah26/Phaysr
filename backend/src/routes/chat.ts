@@ -19,40 +19,33 @@ function buildSystemPrompt(siteName: string, siteContext?: string): string {
   return [
     'The advisor should respond in under 100 words and use enumerated steps, not explanations.',
     '',
-    `Du bist ein freundlicher UI-Assistent fur ${siteName}. Du hilfst Nutzern, sich auf der Website zurechtzufinden.`,
+    `You are a friendly UI assistant for ${siteName}. You help users navigate the website.`,
     '',
-    'Du erhaltst pro Frage:',
-    '1. Einen Screenshot der aktuellen Seite (visueller Kontext, JPEG)',
-    '2. Eine Liste aller sichtbaren DOM-Elemente mit CSS-Selektoren (struktureller Kontext)',
+    'You receive per question:',
+    '1. A screenshot of the current page (visual context, JPEG)',
+    '2. A list of all visible DOM elements with CSS selectors (structural context)',
     '',
-    'Regeln:',
-    '- Antworte in der Sprache der Nutzerfrage. Genau EIN Schritt pro Antwort. Maximal 2 Satze. Kein Markdown.',
-    '- KRITISCH: Immer nur EINE einzige Aktion pro Schritt. Niemals "A und dann B" oder "A und wahle B" kombinieren. Wenn mehrere Aktionen notig sind, nenne nur die allererste.',
-    '- Wenn ein Element noch nicht sichtbar ist (falsche Seite), erklare NUR den Navigationsschritt - kein SELECTOR fur nicht-sichtbare Elemente.',
-    '- Wenn eine Nutzernachricht mit "[CONTINUE]" beginnt, hat der Nutzer eine Seitennavigation durchgefuhrt. Gib den nachsten Schritt basierend auf dem neuen Seitenzustand.',
-    '- Wenn eine Nutzernachricht lautet "Erledigt. Was ist der nachste Schritt?", hat der Nutzer den vorherigen Schritt erledigt. Gib SOFORT den nachsten Schritt. Kommentiere NICHT was der Nutzer getan hat oder nicht getan hat.',
-    '- Du hast Zugriff auf einen `advisor`-Tool. Nutze ihn nur bei wirklich komplexen Fragen.',
+    'Rules:',
+    '- Reply in English. Exactly ONE step per answer. Max 2 sentences. No markdown.',
+    '- Only ONE action per step. Never combine "A and then B".',
+    '- If the user says "What is the next step?": give the next step immediately.',
+    '- If message starts with "[CONTINUE]": user navigated to a new page. Give next step based on new page.',
+    '- If element is not visible (wrong page): explain only the navigation step, no SELECTOR.',
+    '- Use advisor tool only for genuinely complex questions.',
     '',
-    'Element-Highlighting und Continue-Signal:',
-    'Schreibe am ENDE deiner Antwort (nach dem normalen Text) immer zwei Zeilen:',
-    'Zeile 1 - SELECTOR: SELECTOR:<css-selector>  (oder SELECTOR:none wenn kein Element)',
-    'Zeile 2 - CONTINUE: CONTINUE:yes  wenn der Nutzer auf dieser Seite bleibt und danach noch ein weiterer Schritt folgt (Eingabefeld, Dropdown)',
-    '          CONTINUE:no   wenn der Nutzer zu einer anderen Seite navigieren muss und danach noch Schritte folgen',
-    '          CONTINUE:done wenn dieser Schritt der LETZTE Schritt des Auftrags ist (z.B. Formular absenden, Erstellen-Button, Bestatigen-Button) - egal ob danach eine Navigation kommt',
-    'Nutze exakt den Selektor aus der DOM-Liste. Maximal 1 SELECTOR-Zeile.',
+    'At the END of every answer write exactly these two lines:',
+    'SELECTOR:<selector-from-dom-list>',
+    'CONTINUE:<value>',
     '',
-    'Beispiele:',
-    'Klicke auf den Upgrade-Button oben rechts.',
-    'SELECTOR:[data-testid="upgrade-plan-btn"]',
-    'CONTINUE:yes',
+    'CONTINUE values:',
+    'CONTINUE:yes  = default. Use whenever more steps follow after this one.',
+    'CONTINUE:no   = only when the user must navigate to a DIFFERENT page via sidebar/menu/link, AND more steps follow after.',
+    'CONTINUE:done = only when the user\'s original goal is fully and completely accomplished — nothing left to do.',
     '',
-    'Gehe zuerst zum Dashboard (linke Navigation).',
-    'SELECTOR:none',
-    'CONTINUE:no',
-    '',
-    'Klicke auf "Projekt erstellen" um das Projekt zu speichern.',
-    'SELECTOR:[data-testid="create-project-btn"]',
-    'CONTINUE:done',
+    'CONTINUE:yes is the default. Only use :no or :done in the exact situations above.',
+    'Buttons that open a form, modal or dropdown on the same page → always CONTINUE:yes.',
+    'The final submit/save/confirm button of a multi-step flow → CONTINUE:done.',
+    'If no element should be highlighted: SELECTOR:none',
     ...(siteContext ? [
       '',
       'Zusatzlicher Kontext uber diese Website (FAQ / Dokumentation):',
@@ -75,30 +68,24 @@ function buildUserContent(body: ChatRequestBody): Anthropic.ContentBlockParam[] 
   const blocks: Anthropic.ContentBlockParam[] = [];
 
   const base64 = body.screenshot_base64.replace(/^data:image\/\w+;base64,/, '');
-  const screenshotAvailable = base64.length > 0;
-
-  if (screenshotAvailable) {
+  if (base64) {
     blocks.push({
       type: 'image',
       source: { type: 'base64', media_type: 'image/jpeg', data: base64 },
     });
   }
 
-  const domEmpty = !body.dom_snapshot || body.dom_snapshot.length === 0;
-
   blocks.push({
     type: 'text',
     text: [
       `Aktuelle URL: ${body.current_url}`,
       `Seiten-Titel: ${body.page_title}`,
-      !screenshotAvailable ? 'Screenshot: nicht verfugbar (Rendering-Fehler auf dieser Seite — verlasse dich auf DOM-Elemente)' : '',
-      domEmpty ? 'DOM-Elemente: keine sichtbaren Elemente erfasst (Seite moglicherweise noch im Aufbau)' : '',
       '',
       'Sichtbare DOM-Elemente (JSON):',
       JSON.stringify(trimDomSnapshot(body.dom_snapshot), null, 2),
       '',
       `Nutzer-Frage: ${body.question}`,
-    ].filter(line => line !== '').join('\n'),
+    ].join('\n'),
   });
 
   return blocks;
