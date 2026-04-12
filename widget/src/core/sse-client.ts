@@ -1,6 +1,7 @@
 export type ChatStreamEvent =
   | { type: 'text'; delta: string }
   | { type: 'highlight'; selector: string }
+  | { type: 'can_continue'; value: 'yes' | 'no' | 'done' }
   | { type: 'advisor'; status: string }
   | { type: 'error'; message: string }
   | { type: 'done' };
@@ -79,6 +80,8 @@ function parseSSEBlock(block: string): ChatStreamEvent | null {
         return { type: 'advisor', status: parsed.status ?? 'thinking' };
       case 'error':
         return { type: 'error', message: parsed.message ?? 'unknown_error' };
+      case 'can_continue':
+        return { type: 'can_continue', value: parsed.value as 'yes' | 'no' | 'done' };
       case 'done':
         return { type: 'done' };
       default:

@@ -10,40 +10,52 @@ const ADVISOR_MODEL = 'claude-opus-4-6';
 const ADVISOR_BETA = 'advisor-tool-2026-03-01';
 
 // Selector lines look like:  SELECTOR:[data-testid="foo"]
-// They appear at the very end of Claude's response, one per line.
+// Continue lines look like:  CONTINUE:yes  or  CONTINUE:no
+// Both appear at the very end of Claude's response, one per line.
 const SELECTOR_LINE_RE = /^SELECTOR:(.+)$/;
+const CONTINUE_LINE_RE = /^CONTINUE:(yes|no|done)$/;
 
 function buildSystemPrompt(siteName: string, siteContext?: string): string {
   return [
     'The advisor should respond in under 100 words and use enumerated steps, not explanations.',
     '',
-    `Du bist ein freundlicher UI-Assistent für ${siteName}. Du hilfst Nutzern, sich auf der Website zurechtzufinden.`,
+    `Du bist ein freundlicher UI-Assistent fur ${siteName}. Du hilfst Nutzern, sich auf der Website zurechtzufinden.`,
     '',
-    'Du erhältst pro Frage:',
+    'Du erhaltst pro Frage:',
     '1. Einen Screenshot der aktuellen Seite (visueller Kontext, JPEG)',
     '2. Eine Liste aller sichtbaren DOM-Elemente mit CSS-Selektoren (struktureller Kontext)',
     '',
     'Regeln:',
-    '- Antworte in der Sprache der Nutzerfrage. Genau EIN Schritt pro Antwort. Maximal 2 Sätze. Kein Markdown.',
-    '- Wenn ein Element noch nicht sichtbar ist (falsche Seite), erkläre NUR den Navigationsschritt — kein SELECTOR für nicht-sichtbare Elemente.',
-    '- Wenn eine Nutzernachricht mit „[CONTINUE]" beginnt, hat der Nutzer den vorherigen Schritt ausgeführt. Gib GENAU den nächsten Schritt ohne Einleitung.',
+    '- Antworte in der Sprache der Nutzerfrage. Genau EIN Schritt pro Antwort. Maximal 2 Satze. Kein Markdown.',
+    '- KRITISCH: Immer nur EINE einzige Aktion pro Schritt. Niemals "A und dann B" oder "A und wahle B" kombinieren. Wenn mehrere Aktionen notig sind, nenne nur die allererste.',
+    '- Wenn ein Element noch nicht sichtbar ist (falsche Seite), erklare NUR den Navigationsschritt - kein SELECTOR fur nicht-sichtbare Elemente.',
+    '- Wenn eine Nutzernachricht mit "[CONTINUE]" beginnt, hat der Nutzer eine Seitennavigation durchgefuhrt. Gib den nachsten Schritt basierend auf dem neuen Seitenzustand.',
+    '- Wenn eine Nutzernachricht lautet "Erledigt. Was ist der nachste Schritt?", hat der Nutzer den vorherigen Schritt erledigt. Gib SOFORT den nachsten Schritt. Kommentiere NICHT was der Nutzer getan hat oder nicht getan hat.',
     '- Du hast Zugriff auf einen `advisor`-Tool. Nutze ihn nur bei wirklich komplexen Fragen.',
     '',
-    'Element-Highlighting:',
-    'Wenn du auf ein sichtbares Element verweist, füge am ENDE deiner Antwort (nach dem normalen Text, auf einer eigenen Zeile) folgendes ein:',
-    'SELECTOR:<css-selector>',
-    'Nutze exakt den Selektor aus der DOM-Liste. Maximal 1 SELECTOR-Zeile. Schreibe "SELECTOR:" immer als letztes.',
-    'Wenn kein Element hervorgehoben werden soll (z.B. reine Erklärung, Element nicht sichtbar), schreibe: SELECTOR:none',
+    'Element-Highlighting und Continue-Signal:',
+    'Schreibe am ENDE deiner Antwort (nach dem normalen Text) immer zwei Zeilen:',
+    'Zeile 1 - SELECTOR: SELECTOR:<css-selector>  (oder SELECTOR:none wenn kein Element)',
+    'Zeile 2 - CONTINUE: CONTINUE:yes  wenn der Nutzer auf dieser Seite bleibt und danach noch ein weiterer Schritt folgt (Eingabefeld, Dropdown)',
+    '          CONTINUE:no   wenn der Nutzer zu einer anderen Seite navigieren muss und danach noch Schritte folgen',
+    '          CONTINUE:done wenn dieser Schritt der LETZTE Schritt des Auftrags ist (z.B. Formular absenden, Erstellen-Button, Bestatigen-Button) - egal ob danach eine Navigation kommt',
+    'Nutze exakt den Selektor aus der DOM-Liste. Maximal 1 SELECTOR-Zeile.',
     '',
     'Beispiele:',
     'Klicke auf den Upgrade-Button oben rechts.',
     'SELECTOR:[data-testid="upgrade-plan-btn"]',
+    'CONTINUE:yes',
     '',
-    'Gehe zuerst zu den Einstellungen (oben links im Menü).',
+    'Gehe zuerst zum Dashboard (linke Navigation).',
     'SELECTOR:none',
+    'CONTINUE:no',
+    '',
+    'Klicke auf "Projekt erstellen" um das Projekt zu speichern.',
+    'SELECTOR:[data-testid="create-project-btn"]',
+    'CONTINUE:done',
     ...(siteContext ? [
       '',
-      'Zusätzlicher Kontext über diese Website (FAQ / Dokumentation):',
+      'Zusatzlicher Kontext uber diese Website (FAQ / Dokumentation):',
       siteContext,
     ] : []),
   ].join('\n');
@@ -63,24 +75,30 @@ function buildUserContent(body: ChatRequestBody): Anthropic.ContentBlockParam[] 
   const blocks: Anthropic.ContentBlockParam[] = [];
 
   const base64 = body.screenshot_base64.replace(/^data:image\/\w+;base64,/, '');
-  if (base64) {
+  const screenshotAvailable = base64.length > 0;
+
+  if (screenshotAvailable) {
     blocks.push({
       type: 'image',
       source: { type: 'base64', media_type: 'image/jpeg', data: base64 },
     });
   }
 
+  const domEmpty = !body.dom_snapshot || body.dom_snapshot.length === 0;
+
   blocks.push({
     type: 'text',
     text: [
       `Aktuelle URL: ${body.current_url}`,
       `Seiten-Titel: ${body.page_title}`,
+      !screenshotAvailable ? 'Screenshot: nicht verfugbar (Rendering-Fehler auf dieser Seite — verlasse dich auf DOM-Elemente)' : '',
+      domEmpty ? 'DOM-Elemente: keine sichtbaren Elemente erfasst (Seite moglicherweise noch im Aufbau)' : '',
       '',
       'Sichtbare DOM-Elemente (JSON):',
       JSON.stringify(trimDomSnapshot(body.dom_snapshot), null, 2),
       '',
       `Nutzer-Frage: ${body.question}`,
-    ].join('\n'),
+    ].filter(line => line !== '').join('\n'),
   });
 
   return blocks;
@@ -90,18 +108,24 @@ function buildUserContent(body: ChatRequestBody): Anthropic.ContentBlockParam[] 
  * Splits a completed response text into visible text and CSS selectors.
  * SELECTOR: lines at the end are extracted; the rest is the display text.
  */
-function extractSelectors(fullText: string): { text: string; selectors: string[] } {
+function extractSelectors(fullText: string): { text: string; selectors: string[]; canContinue: 'yes' | 'no' | 'done' } {
   const lines = fullText.split('\n');
   const selectors: string[] = [];
+  let canContinue: 'yes' | 'no' | 'done' = 'yes'; // default: show Continue
   let cutAt = lines.length;
 
   for (let i = lines.length - 1; i >= 0; i--) {
-    const m = SELECTOR_LINE_RE.exec(lines[i].trim());
-    if (m) {
-      selectors.unshift(m[1].trim());
+    const trimmed = lines[i].trim();
+    const sm = SELECTOR_LINE_RE.exec(trimmed);
+    const cm = CONTINUE_LINE_RE.exec(trimmed);
+    if (sm) {
+      selectors.unshift(sm[1].trim());
       cutAt = i;
-    } else if (lines[i].trim() === '') {
-      // allow blank separator lines before selectors
+    } else if (cm) {
+      canContinue = cm[1] as 'yes' | 'no' | 'done';
+      cutAt = i;
+    } else if (trimmed === '') {
+      // allow blank separator lines before tags
       continue;
     } else {
       break;
@@ -109,7 +133,7 @@ function extractSelectors(fullText: string): { text: string; selectors: string[]
   }
 
   const text = lines.slice(0, cutAt).join('\n').trim();
-  return { text, selectors };
+  return { text, selectors, canContinue };
 }
 
 chatRoute.post('/', async (c) => {
@@ -173,14 +197,14 @@ chatRoute.post('/', async (c) => {
           fullText += event.delta.text;
         } else if (
           event.type === 'content_block_start' &&
-          event.content_block.type === 'server_tool_use'
+          (event as unknown as { content_block?: { type?: string } }).content_block?.type === 'server_tool_use'
         ) {
           await stream.writeSSE({ event: 'advisor', data: JSON.stringify({ status: 'thinking' }) });
         }
       }
 
-      // Split text and selectors, send clean text then highlights
-      const { text, selectors } = extractSelectors(fullText);
+      // Split text, selectors and continue-signal; send clean text then highlights
+      const { text, selectors, canContinue } = extractSelectors(fullText);
 
       if (text) {
         await stream.writeSSE({ event: 'text', data: JSON.stringify({ delta: text }) });
@@ -188,6 +212,7 @@ chatRoute.post('/', async (c) => {
       for (const sel of selectors.filter((s) => s !== 'none')) {
         await stream.writeSSE({ event: 'highlight', data: JSON.stringify({ selector: sel }) });
       }
+      await stream.writeSSE({ event: 'can_continue', data: JSON.stringify({ value: canContinue }) }); // 'yes' | 'no' | 'done'
       await stream.writeSSE({ event: 'done', data: '{}' });
     } catch (err) {
       const message = err instanceof Error ? err.message : 'unknown_error';

@@ -13,6 +13,14 @@ import { streamChat } from '../core/sse-client.js';
 
 const MAX_CONTINUE_STEPS = 6;
 
+/** Stable fingerprint that changes whenever the visible "page" changes —
+ *  works for URL-based routing, SPA history routing, and pure state-based
+ *  routing (like the demo site) that only swaps the h1/title. */
+function getPageFingerprint(): string {
+  const h1 = document.querySelector('h1')?.textContent?.trim() ?? '';
+  return `${window.location.href}|${document.title}|${h1}`;
+}
+
 interface ConversationMessage {
   role: 'user' | 'assistant' | 'continuation';
   content: string;
@@ -32,7 +40,9 @@ export function App({ config, hostElement }: AppProps) {
   const activeGoalRef = useRef<string | null>(null);
   const continueStepCountRef = useRef(0);
   const lastAssistantTextRef = useRef('');
-  const sendMessageRef = useRef<(question: string, isContinuation: boolean) => Promise<void>>(async () => undefined);
+  const expectingNavRef = useRef(false);
+  const navWatchUrlRef = useRef('');
+  const sendMessageRef = useRef<(question: string, isContinuation: boolean, skipContext?: boolean) => Promise<void>>(async () => undefined);
 
   const handleContinue = useCallback(() => {
     const goal = activeGoalRef.current;
@@ -49,10 +59,10 @@ export function App({ config, hostElement }: AppProps) {
     }
 
     continueStepCountRef.current += 1;
-    void sendMessageRef.current(goal, true);
+    void sendMessageRef.current(goal, true, true);
   }, [config.color]);
 
-  const sendMessage = useCallback(async (question: string, isContinuation = false) => {
+  const sendMessage = useCallback(async (question: string, isContinuation = false, skipContext = false) => {
     if (isLoadingRef.current) return;
 
     isLoadingRef.current = true;
@@ -60,7 +70,9 @@ export function App({ config, hostElement }: AppProps) {
     clearHighlights();
 
     const apiQuestion = isContinuation
-      ? `[CONTINUE] ${question}`
+      ? (skipContext
+          ? 'Erledigt. Was ist der nächste Schritt?'
+          : `[CONTINUE] ${question}`)
       : question;
 
     const history = historyRef.current.map((m) => ({
@@ -76,7 +88,7 @@ export function App({ config, hostElement }: AppProps) {
     let snapshot: ReturnType<typeof getDOMSnapshot> | undefined;
     let screenshot = '';
     let assistantText = '';
-    let hadHighlight = false;
+    let aiCanContinue: 'yes' | 'no' | 'done' = 'yes';
     let advisorThinking = false;
     let hadError = false;
 
@@ -123,8 +135,9 @@ export function App({ config, hostElement }: AppProps) {
             canContinue: false,
           });
         } else if (ev.type === 'highlight') {
-          hadHighlight = true;
           highlightElement(ev.selector, config.color);
+        } else if (ev.type === 'can_continue') {
+          aiCanContinue = ev.value;
         } else if (ev.type === 'advisor') {
           advisorThinking = true;
           showGuideOutput({
@@ -167,10 +180,21 @@ export function App({ config, hostElement }: AppProps) {
     lastAssistantTextRef.current = finalText;
     historyRef.current.push({ role: 'assistant', content: finalText });
 
-    const canContinue = hadHighlight && !!activeGoalRef.current && continueStepCountRef.current < MAX_CONTINUE_STEPS;
-    if (!canContinue) {
+    const goalDone = aiCanContinue === 'done';
+    const goalActive = !goalDone && !!activeGoalRef.current && continueStepCountRef.current < MAX_CONTINUE_STEPS;
+    const showContinueButton = aiCanContinue === 'yes' && goalActive;
+    const waitingForNav = aiCanContinue === 'no' && goalActive;
+
+    if (!goalActive || goalDone) {
       activeGoalRef.current = null;
       continueStepCountRef.current = 0;
+      expectingNavRef.current = false;
+    } else if (waitingForNav) {
+      expectingNavRef.current = true;
+      navWatchUrlRef.current = getPageFingerprint();
+      navWatchStartRef.current = Date.now();
+    } else {
+      expectingNavRef.current = false;
     }
 
     showGuideOutput({
@@ -178,9 +202,11 @@ export function App({ config, hostElement }: AppProps) {
       color: config.color,
       isLoading: false,
       advisorActive: false,
-      canContinue,
-      onContinue: canContinue ? handleContinue : undefined,
+      canContinue: showContinueButton,
+      onContinue: showContinueButton ? handleContinue : undefined,
       continueLabel: 'Continue',
+      waitingForNav,
+      isDone: goalDone,
     });
 
     isLoadingRef.current = false;
@@ -196,6 +222,7 @@ export function App({ config, hostElement }: AppProps) {
     setInput('');
     activeGoalRef.current = question;
     continueStepCountRef.current = 0;
+    expectingNavRef.current = false;
     void sendMessageRef.current(question, false);
   }, [input]);
 
@@ -205,6 +232,34 @@ export function App({ config, hostElement }: AppProps) {
       handleSend();
     }
   }, [handleSend]);
+
+  // Auto-trigger next step when user navigates to a new page (CONTINUE:no flow)
+  // Fallback: if no navigation detected after 6s, treat as done and clear state.
+  const navWatchStartRef = useRef(0);
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      if (!expectingNavRef.current || isLoadingRef.current) return;
+      const goal = activeGoalRef.current;
+      if (!goal) return;
+
+      if (getPageFingerprint() !== navWatchUrlRef.current) {
+        expectingNavRef.current = false;
+        continueStepCountRef.current += 1;
+        void sendMessageRef.current(goal, true, false);
+      } else if (Date.now() - navWatchStartRef.current > 6000) {
+        // No navigation after 6s — silently stop waiting
+        expectingNavRef.current = false;
+        activeGoalRef.current = null;
+        continueStepCountRef.current = 0;
+        showGuideOutput({
+          text: lastAssistantTextRef.current,
+          color: config.color,
+          isDone: true,
+        });
+      }
+    }, 500);
+    return () => window.clearInterval(interval);
+  }, [config.color]);
 
   useEffect(() => () => {
     clearHighlights();

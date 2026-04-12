@@ -14,6 +14,7 @@ let guideOutputTextEl: HTMLDivElement | null = null;
 let guideOutputMetaEl: HTMLDivElement | null = null;
 let guideOutputButtonEl: HTMLButtonElement | null = null;
 let guideOutputColor = '#3B82F6';
+let lastHighlightRect: DOMRect | null = null;
 
 export interface GuideOutputOptions {
   text: string;
@@ -23,6 +24,8 @@ export interface GuideOutputOptions {
   canContinue?: boolean;
   continueLabel?: string;
   onContinue?: () => void;
+  waitingForNav?: boolean;
+  isDone?: boolean;
 }
 
 function bezier(t: number, p0: number, p1: number, p2: number): number {
@@ -151,30 +154,58 @@ function ensureGuideOutput() {
   guideOutputButtonEl = button;
 }
 
+function rectsOverlap(
+  a: { left: number; top: number; right: number; bottom: number },
+  b: { left: number; top: number; right: number; bottom: number },
+): boolean {
+  const PAD = 10;
+  return (
+    a.right + PAD > b.left &&
+    a.left - PAD < b.right &&
+    a.bottom + PAD > b.top &&
+    a.top - PAD < b.bottom
+  );
+}
+
 function positionGuideOutput() {
   if (!guideOutputEl || guideOutputEl.style.display === 'none') return;
 
-  const anchorX = lastCursorPos?.x ?? 260;
-  const anchorY = lastCursorPos?.y ?? Math.max(110, window.innerHeight - 130);
-
-  const gap = 18;
   const margin = 12;
-  const rect = guideOutputEl.getBoundingClientRect();
+  const gap = 14;
+  const W = window.innerWidth;
+  const H = window.innerHeight;
+  const gW = guideOutputEl.offsetWidth || 280;
+  const gH = guideOutputEl.offsetHeight || 120;
 
-  let left = anchorX + gap;
-  let top = anchorY - rect.height * 0.5;
+  const tgt = lastHighlightRect;
 
-  if (left + rect.width + margin > window.innerWidth) {
-    left = anchorX - rect.width - gap;
+  // Candidate positions in priority order: right, left, below, above target element
+  const candidates: Array<{ left: number; top: number }> = tgt
+    ? [
+        { left: tgt.right + gap,                        top: tgt.top + tgt.height / 2 - gH / 2 },
+        { left: tgt.left - gW - gap,                    top: tgt.top + tgt.height / 2 - gH / 2 },
+        { left: tgt.left + tgt.width / 2 - gW / 2,     top: tgt.bottom + gap },
+        { left: tgt.left + tgt.width / 2 - gW / 2,     top: tgt.top - gH - gap },
+        // Cursor-based fallback
+        { left: (lastCursorPos?.x ?? W - 80) + gap,    top: (lastCursorPos?.y ?? H - 130) - gH / 2 },
+      ]
+    : [{ left: (lastCursorPos?.x ?? 260) + gap, top: (lastCursorPos?.y ?? H - 130) - gH / 2 }];
+
+  for (const pos of candidates) {
+    const left = Math.max(margin, Math.min(pos.left, W - gW - margin));
+    const top  = Math.max(margin, Math.min(pos.top,  H - gH - margin));
+    const g = { left, top, right: left + gW, bottom: top + gH };
+
+    if (!tgt || !rectsOverlap(g, tgt)) {
+      guideOutputEl.style.left = `${Math.round(left)}px`;
+      guideOutputEl.style.top  = `${Math.round(top)}px`;
+      return;
+    }
   }
-  if (left < margin) left = margin;
-  if (top < margin) top = margin;
-  if (top + rect.height + margin > window.innerHeight) {
-    top = window.innerHeight - rect.height - margin;
-  }
 
-  guideOutputEl.style.left = `${Math.round(left)}px`;
-  guideOutputEl.style.top = `${Math.round(top)}px`;
+  // Absolute fallback: top-left corner
+  guideOutputEl.style.left = `${margin}px`;
+  guideOutputEl.style.top  = `${margin}px`;
 }
 
 function updateCursorAnchor(x: number, y: number) {
@@ -281,6 +312,8 @@ async function drawRingWithCursor(target: Element, color: string): Promise<void>
     ring!.style.width = `${r.width + 8}px`;
     ring!.style.height = `${r.height + 8}px`;
 
+    lastHighlightRect = r;
+
     const cursorX = r.left + r.width * 0.3;
     const cursorY = r.top - 7;
     cursor.style.left = `${cursorX - 7}px`;
@@ -314,16 +347,25 @@ export function showGuideOutput(options: GuideOutputOptions) {
     guideOutputMetaEl.textContent = 'Advisor denkt nach...';
   } else if (options.isLoading) {
     guideOutputMetaEl.textContent = 'KI denkt nach...';
+  } else if (options.waitingForNav) {
+    guideOutputMetaEl.textContent = 'Warte auf Seitenwechsel...';
   } else {
     guideOutputMetaEl.textContent = '';
   }
 
   const canContinue = Boolean(options.canContinue);
-  continueHandler = canContinue && options.onContinue ? options.onContinue : null;
+  const isDone = Boolean(options.isDone);
+  continueHandler = canContinue && options.onContinue
+    ? options.onContinue
+    : isDone
+      ? () => hideGuideOutput()
+      : null;
 
-  guideOutputButtonEl.textContent = options.continueLabel ?? 'Continue';
-  guideOutputButtonEl.style.display = canContinue ? 'inline-flex' : 'none';
-  guideOutputButtonEl.disabled = Boolean(options.isLoading) || !canContinue;
+  const showButton = canContinue || isDone;
+  guideOutputButtonEl.textContent = isDone ? 'Fertig ✓' : (options.continueLabel ?? 'Continue');
+  guideOutputButtonEl.style.display = showButton ? 'inline-flex' : 'none';
+  guideOutputButtonEl.style.background = isDone ? '#22c55e' : guideOutputColor;
+  guideOutputButtonEl.disabled = Boolean(options.isLoading) || !showButton;
   guideOutputButtonEl.style.opacity = guideOutputButtonEl.disabled ? '0.5' : '1';
   guideOutputButtonEl.style.cursor = guideOutputButtonEl.disabled ? 'not-allowed' : 'pointer';
 
@@ -347,6 +389,7 @@ export function clearHighlights() {
   pendingHighlights.clear();
   document.querySelectorAll(`.${RING_CLASS}`).forEach((el) => el.remove());
   document.getElementById(CURSOR_ID)?.remove();
+  lastHighlightRect = null;
 }
 
 export function highlightElement(selector: string, color = '#3B82F6'): boolean {
