@@ -88,6 +88,19 @@ function buildUserContent(body: ChatRequestBody): Anthropic.ContentBlockParam[] 
     ].join('\n'),
   });
 
+  if (body.input_values && body.input_values.length > 0) {
+    blocks.push({
+      type: 'text',
+      text: [
+        '',
+        'Currently filled form fields (user has already typed these):',
+        JSON.stringify(body.input_values, null, 2),
+        '',
+        'IMPORTANT: These fields are already filled. Do NOT ask the user to fill them again.',
+      ].join('\n'),
+    });
+  }
+
   return blocks;
 }
 
