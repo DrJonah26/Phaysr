@@ -451,11 +451,26 @@ export function showGuideOutput(options: GuideOutputOptions) {
 
   positionGuideOutput();
 
-  // If we have no anchor yet (first step, highlight hasn't arrived),
-  // stay hidden until drawRingWithCursor pre-positions us and reveals.
+  // If we have no anchor yet (first step, highlight hasn't arrived):
+  // - while still loading: stay hidden until drawRingWithCursor reveals us
+  // - once loading is done (SELECTOR:none case): show above the input dock
   if (!lastHighlightRect && !lastGuideOutputPos) {
-    guideOutputPendingReveal = true;
-    return;
+    if (options.isLoading !== false) {
+      guideOutputPendingReveal = true;
+      return;
+    }
+    // No highlight target and stream is done — position above input dock (bottom-right)
+    const W = window.innerWidth;
+    const H = window.innerHeight;
+    const gW = guideOutputEl.offsetWidth || 280;
+    const gH = guideOutputEl.offsetHeight || 120;
+    const margin = 12;
+    const left = Math.max(margin, W - gW - 80);
+    const top = Math.max(margin, H - gH - 110);
+    guideOutputEl.style.transitionDuration = '0ms, 0ms';
+    guideOutputEl.style.left = `${left}px`;
+    guideOutputEl.style.top = `${top}px`;
+    lastGuideOutputPos = { left, top };
   }
 
   guideOutputPendingReveal = false;
