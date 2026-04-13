@@ -52,6 +52,24 @@ export function getUniqueSelector(el: Element): string {
     if (isUniqueSelector(sel)) return sel;
   }
 
+  const ariaLabel = el.getAttribute('aria-label');
+  if (ariaLabel) {
+    const sel = `[aria-label="${ariaLabel}"]`;
+    if (isUniqueSelector(sel)) return sel;
+  }
+
+  const nameAttr = el.getAttribute('name');
+  if (nameAttr) {
+    const sel = `${el.tagName.toLowerCase()}[name="${nameAttr}"]`;
+    if (isUniqueSelector(sel)) return sel;
+  }
+
+  const placeholder = el.getAttribute('placeholder');
+  if (placeholder && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')) {
+    const sel = `${el.tagName.toLowerCase()}[placeholder="${placeholder}"]`;
+    if (isUniqueSelector(sel)) return sel;
+  }
+
   const parts: string[] = [];
   let current: Element | null = el;
   let depth = 0;
