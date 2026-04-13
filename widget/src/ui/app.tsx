@@ -60,7 +60,7 @@ export function App({ config, hostElement }: AppProps) {
     }
 
     continueStepCountRef.current += 1;
-    void sendMessageRef.current(goal, true, true);
+    void sendMessageRef.current(goal, true, false);
   }, [config.color]);
 
   const sendMessage = useCallback(async (question: string, isContinuation = false, skipContext = false) => {
