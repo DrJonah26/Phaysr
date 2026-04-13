@@ -206,10 +206,17 @@ chatRoute.post('/', async (c) => {
       // Split text, selectors and continue-signal; send clean text then highlights
       const { text, selectors, canContinue } = extractSelectors(fullText);
 
+      // Only pass through selectors that actually exist in the DOM snapshot
+      // — prevents hallucinated selectors from reaching the widget
+      const domSelectors = new Set(body.dom_snapshot.map(el => el.selector));
+      const validSelectors = selectors.filter(sel =>
+        sel === 'none' || domSelectors.has(sel)
+      );
+
       if (text) {
         await stream.writeSSE({ event: 'text', data: JSON.stringify({ delta: text }) });
       }
-      for (const sel of selectors.filter((s) => s !== 'none')) {
+      for (const sel of validSelectors.filter((s) => s !== 'none')) {
         await stream.writeSSE({ event: 'highlight', data: JSON.stringify({ selector: sel }) });
       }
       await stream.writeSSE({ event: 'can_continue', data: JSON.stringify({ value: canContinue }) }); // 'yes' | 'no' | 'done'
