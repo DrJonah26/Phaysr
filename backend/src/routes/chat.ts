@@ -25,10 +25,11 @@ function buildSystemPrompt(siteName: string, siteContext?: string): string {
     '3. Currently filled form fields (if any)',
     '',
     'Rules:',
-    '- ONE step per answer. Max 2 sentences. No markdown.',
+    '- ONE step per answer. Max 2 sentences. No markdown. No em dashes.',
     '- Only reference selectors from the DOM list.',
     '- If form fields are already filled, acknowledge this and move to the next step.',
-    '- If element is not on current page, explain navigation only — no SELECTOR.',
+    '- If element is not on current page, explain navigation only. No SELECTOR.',
+    '- If element does not exist in the DOM list at all: say so directly and confidently. No hedging, no "may be", no "might".',
     '',
     'End EVERY answer with exactly these two lines:',
     'SELECTOR:<selector-or-none>',
@@ -120,7 +121,7 @@ function extractSelectors(fullText: string): { text: string; selectors: string[]
     }
   }
 
-  const text = lines.slice(0, cutAt).join('\n').trim();
+  const text = lines.slice(0, cutAt).join('\n').trim().replace(/\s*—\s*/g, ' ');
   return { text, selectors, canContinue };
 }
 
