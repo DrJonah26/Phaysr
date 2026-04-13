@@ -12,8 +12,8 @@ const ADVISOR_BETA = 'advisor-tool-2026-03-01';
 // Selector lines look like:  SELECTOR:[data-testid="foo"]
 // Continue lines look like:  CONTINUE:yes  or  CONTINUE:no
 // Both appear at the very end of Claude's response, one per line.
-const SELECTOR_LINE_RE = /^SELECTOR:(.+)$/;
-const CONTINUE_LINE_RE = /^CONTINUE:(yes|no|done)$/;
+const SELECTOR_LINE_RE = /^SELECTOR:\s*(.+)$/;
+const CONTINUE_LINE_RE = /^CONTINUE:\s*(yes|no|done)$/i;
 
 function buildSystemPrompt(siteName: string, siteContext?: string): string {
   return [
@@ -192,7 +192,8 @@ chatRoute.post('/', async (c) => {
       }
 
       // Split text, selectors and continue-signal; send clean text then highlights
-      const { text, selectors, canContinue } = extractSelectors(fullText);
+      const { text, selectors, canContinue: rawCanContinue } = extractSelectors(fullText);
+      let canContinue = rawCanContinue;
 
       // Only pass through selectors that actually exist in the DOM snapshot
       // — prevents hallucinated selectors from reaching the widget
@@ -200,6 +201,18 @@ chatRoute.post('/', async (c) => {
       const validSelectors = selectors.filter(sel =>
         sel === 'none' || domSelectors.has(sel)
       );
+
+      // Code-level task completion detection — catches cases where Claude
+      // returns CONTINUE:yes but the response clearly signals task is done.
+      // Does not rely on system-prompt instructions.
+      if (canContinue === 'yes') {
+        const noHighlight = validSelectors.every(s => s === 'none');
+        const hasCompletionSignal = /\b(successfully|has been (complet|upgrad|submit|sav|sent|creat)|all set|you(?:'re| are) (?:now|all set)|fully accomplished)\b/i.test(text);
+        const hasActionWord = /\b(click|tap|select|choose|type|enter|fill|navigate|go to|open|press|scroll)\b/i.test(text);
+        if (noHighlight && hasCompletionSignal && !hasActionWord) {
+          canContinue = 'done';
+        }
+      }
 
       if (text) {
         await stream.writeSSE({ event: 'text', data: JSON.stringify({ delta: text }) });
