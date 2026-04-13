@@ -7,6 +7,13 @@ export interface DOMElementSnapshot {
   boundingBox?: { x: number; y: number; width: number; height: number };
 }
 
+export interface InputValueSnapshot {
+  selector: string;
+  value: string;
+  placeholder: string | null;
+  type: string | null;
+}
+
 export interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
@@ -22,4 +29,5 @@ export interface ChatRequestBody {
   site_name?: string;
   api_key?: string;
   site_context?: string; // optional FAQ / docs injected by the SaaS customer
+  input_values?: InputValueSnapshot[];
 }
