@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
 import type { JSX } from 'preact';
 import type { WidgetConfig } from '../config.js';
-import { getDOMSnapshot } from '../core/dom-context.js';
+import { getDOMSnapshot, getInputValues } from '../core/dom-context.js';
 import { captureScreenshot } from '../core/screenshot.js';
 import {
   highlightElement,
@@ -96,6 +96,7 @@ export function App({ config, hostElement }: AppProps) {
 
     let snapshot: ReturnType<typeof getDOMSnapshot> | undefined;
     let screenshot = '';
+    let inputValues: ReturnType<typeof getInputValues> = [];
     let assistantText = '';
     let aiCanContinue: 'yes' | 'no' | 'done' = 'yes';
     let hadError = false;
@@ -106,6 +107,7 @@ export function App({ config, hostElement }: AppProps) {
     try {
       snapshot = getDOMSnapshot(hostElement);
       screenshot = await captureScreenshot(hostElement);
+      inputValues = getInputValues(hostElement);
     } catch {
       // continue without screenshot context
     }
@@ -117,6 +119,7 @@ export function App({ config, hostElement }: AppProps) {
           question: apiQuestion,
           screenshot_base64: screenshot,
           dom_snapshot: snapshot ?? [],
+          input_values: inputValues,
           current_url: window.location.href,
           page_title: document.title,
           conversation_history: history,
