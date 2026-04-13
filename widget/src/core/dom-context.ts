@@ -94,6 +94,35 @@ export function getUniqueSelector(el: Element): string {
   return selector || el.tagName.toLowerCase();
 }
 
+export interface InputValueSnapshot {
+  selector: string;
+  value: string;
+  placeholder: string | null;
+  type: string | null;
+}
+
+export function getInputValues(excludeRoot?: Element | null): InputValueSnapshot[] {
+  const inputs = document.querySelectorAll('input, textarea, select');
+  const result: InputValueSnapshot[] = [];
+
+  for (const el of Array.from(inputs)) {
+    if (excludeRoot && excludeRoot.contains(el)) continue;
+    if (!isVisible(el)) continue;
+
+    const value = (el as HTMLInputElement).value?.trim() ?? '';
+    if (!value) continue; // only filled fields
+
+    result.push({
+      selector: getUniqueSelector(el),
+      value: value.slice(0, 200),
+      placeholder: el.getAttribute('placeholder'),
+      type: el.getAttribute('type'),
+    });
+  }
+
+  return result;
+}
+
 export function getDOMSnapshot(excludeRoot?: Element | null): DOMElementSnapshot[] {
   const elements = document.querySelectorAll(SELECTOR_QUERY);
   const result: DOMElementSnapshot[] = [];
