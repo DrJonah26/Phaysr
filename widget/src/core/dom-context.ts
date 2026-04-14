@@ -141,6 +141,48 @@ export function getInputValues(excludeRoot?: Element | null): InputValueSnapshot
   return result;
 }
 
+/**
+ * Returns true only if the highlighted element is a real navigation link
+ * that will cause a page change. Buttons, dropdowns, modals → false.
+ */
+export function isNavigationElement(selector: string): boolean {
+  if (!selector || selector === 'none') return false;
+
+  let el: Element | null = null;
+  try {
+    el = document.querySelector(selector);
+  } catch {
+    return false;
+  }
+
+  if (!el) return false;
+
+  // Rule 1: <a> tag with a real href (not "#" or "javascript:")
+  if (el.tagName === 'A') {
+    const href = (el as HTMLAnchorElement).getAttribute('href') ?? '';
+    const isRealLink = href.length > 0 && href !== '#' && !href.startsWith('javascript:');
+    if (isRealLink) return true;
+  }
+
+  // Rule 2: buttons are never navigation
+  if (el.tagName === 'BUTTON') return false;
+  if (el.getAttribute('role') === 'button') return false;
+
+  // Rule 3: data-testid ending in -btn/-button → button heuristic
+  const testId = el.getAttribute('data-testid') ?? '';
+  if (testId.endsWith('-btn') || testId.endsWith('-button')) return false;
+
+  // Rule 4: check child <a href> links (selector may point to a wrapper)
+  const childLink = el.querySelector('a[href]');
+  if (childLink) {
+    const href = (childLink as HTMLAnchorElement).getAttribute('href') ?? '';
+    const isRealLink = href.length > 0 && href !== '#' && !href.startsWith('javascript:');
+    if (isRealLink) return true;
+  }
+
+  return false;
+}
+
 export function getDOMSnapshot(excludeRoot?: Element | null): DOMElementSnapshot[] {
   const elements = document.querySelectorAll(SELECTOR_QUERY);
   const result: DOMElementSnapshot[] = [];

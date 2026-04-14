@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
 import type { JSX } from 'preact';
 import type { WidgetConfig } from '../config.js';
-import { getDOMSnapshot, getInputValues } from '../core/dom-context.js';
+import { getDOMSnapshot, getInputValues, isNavigationElement } from '../core/dom-context.js';
 import { captureScreenshot } from '../core/screenshot.js';
 import {
   highlightElement,
@@ -99,6 +99,7 @@ export function App({ config, hostElement }: AppProps) {
     let inputValues: ReturnType<typeof getInputValues> = [];
     let assistantText = '';
     let aiCanContinue: 'yes' | 'no' | 'done' = 'yes';
+    let lastHighlightedSelector = 'none';
     let hadError = false;
 
     // Visually hide guide output while AI loads — keeps position/cursor state intact
@@ -140,6 +141,7 @@ export function App({ config, hostElement }: AppProps) {
             canContinue: false,
           });
         } else if (ev.type === 'highlight') {
+          lastHighlightedSelector = ev.selector;
           highlightElement(ev.selector, config.color);
         } else if (ev.type === 'can_continue') {
           aiCanContinue = ev.value;
@@ -176,8 +178,10 @@ export function App({ config, hostElement }: AppProps) {
 
     const goalDone = aiCanContinue === 'done';
     const goalActive = !goalDone && !!activeGoalRef.current && continueStepCountRef.current < MAX_CONTINUE_STEPS;
-    const showContinueButton = aiCanContinue === 'yes' && goalActive;
-    const waitingForNav = aiCanContinue === 'no' && goalActive;
+    const isRealNavigation = isNavigationElement(lastHighlightedSelector);
+    const waitingForNav = aiCanContinue === 'no' && goalActive && isRealNavigation;
+    const continueNoButNotNav = aiCanContinue === 'no' && goalActive && !isRealNavigation;
+    const showContinueButton = (aiCanContinue === 'yes' || continueNoButNotNav) && goalActive;
 
     if (!goalActive || goalDone) {
       activeGoalRef.current = null;
@@ -237,10 +241,16 @@ export function App({ config, hostElement }: AppProps) {
 
       if (getPageFingerprint() !== navWatchUrlRef.current) {
         expectingNavRef.current = false;
-        continueStepCountRef.current += 1;
-        void sendMessageRef.current(goal, true, false);
-      } else if (Date.now() - navWatchStartRef.current > 6000) {
-        // No navigation after 6s — silently stop waiting
+        // Page navigated — keep guide block in place, show Continue so user triggers next step
+        showGuideOutput({
+          text: lastAssistantTextRef.current,
+          color: config.color,
+          canContinue: true,
+          onContinue: handleContinue,
+          continueLabel: 'Continue',
+        });
+      } else if (Date.now() - navWatchStartRef.current > 3000) {
+        // No navigation after 3s — silently stop waiting
         expectingNavRef.current = false;
         activeGoalRef.current = null;
         continueStepCountRef.current = 0;
@@ -252,7 +262,7 @@ export function App({ config, hostElement }: AppProps) {
       }
     }, 500);
     return () => window.clearInterval(interval);
-  }, [config.color]);
+  }, [config.color, handleContinue]);
 
   useEffect(() => () => {
     clearHighlights();

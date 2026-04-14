@@ -22,16 +22,117 @@ const PROJECT_TYPES = ['Software', 'Design', 'Marketing', 'Research', 'Other'];
 
 const AVATAR_BG = ['#F5EDED', '#EDF1F5', '#F5F1ED', '#F0EDF5', '#EDF5F1'];
 
+interface Task { id: number; text: string; done: boolean; }
+interface Project { id: string; name: string; type: string; tasksTotal: number; tasksDone: number; tasks: Task[]; }
+
+const INITIAL_PROJECTS: Project[] = [
+  {
+    id: 'p1',
+    name: 'Website Redesign',
+    type: 'Design',
+    tasksTotal: 7,
+    tasksDone: 4,
+    tasks: [
+      { id: 1, text: 'Create wireframes for landing page', done: true },
+      { id: 2, text: 'Design color system & typography', done: true },
+      { id: 3, text: 'Prototype navigation flow', done: true },
+      { id: 4, text: 'Review with stakeholders', done: true },
+      { id: 5, text: 'Implement responsive layouts', done: false },
+      { id: 6, text: 'Accessibility audit', done: false },
+      { id: 7, text: 'Final QA and handoff', done: false },
+    ],
+  },
+  {
+    id: 'p2',
+    name: 'API v2 Migration',
+    type: 'Software',
+    tasksTotal: 12,
+    tasksDone: 9,
+    tasks: [
+      { id: 1, text: 'Audit existing endpoints',          done: true },
+      { id: 2, text: 'Define new schema contracts',       done: true },
+      { id: 3, text: 'Set up staging environment',        done: true },
+      { id: 4, text: 'Migrate authentication endpoints',  done: true },
+      { id: 5, text: 'Migrate user data endpoints',       done: true },
+      { id: 6, text: 'Migrate billing endpoints',         done: true },
+      { id: 7, text: 'Update SDK documentation',          done: true },
+      { id: 8, text: 'Internal load testing',             done: true },
+      { id: 9, text: 'Beta rollout to 5% of users',       done: true },
+      { id: 10, text: 'Fix reported regression bugs',     done: false },
+      { id: 11, text: 'Full production cutover',          done: false },
+      { id: 12, text: 'Deprecate v1 endpoints',           done: false },
+    ],
+  },
+  {
+    id: 'p3',
+    name: 'Q2 Marketing Push',
+    type: 'Marketing',
+    tasksTotal: 5,
+    tasksDone: 2,
+    tasks: [
+      { id: 1, text: 'Define target segments',            done: true },
+      { id: 2, text: 'Write email campaign copy',         done: true },
+      { id: 3, text: 'Design ad creatives',               done: false },
+      { id: 4, text: 'Schedule social media posts',       done: false },
+      { id: 5, text: 'Set up conversion tracking',        done: false },
+    ],
+  },
+];
+
+const TYPE_COLOR: Record<string, string> = {
+  Software:  'var(--accent)',
+  Design:    'var(--orange)',
+  Marketing: 'var(--green)',
+  Research:  '#7C6FAF',
+  Other:     'var(--text-3)',
+};
+
 export function Dashboard() {
   const [showNewProject, setShowNewProject] = useState(false);
   const [projectName,    setProjectName]    = useState('');
   const [projectType,    setProjectType]    = useState('Software');
   const [projectDesc,    setProjectDesc]    = useState('');
 
+  const [projects, setProjects]           = useState<Project[]>(INITIAL_PROJECTS);
+  const [openProject, setOpenProject]     = useState<string | null>(null);
+  const [newTaskText,  setNewTaskText]     = useState('');
+
   const handleCreate = () => {
     if (!projectName.trim()) return;
+    const newProj: Project = {
+      id: `p${Date.now()}`,
+      name: projectName.trim(),
+      type: projectType,
+      tasksTotal: 0,
+      tasksDone: 0,
+      tasks: [],
+    };
+    setProjects((prev) => [newProj, ...prev]);
     setShowNewProject(false);
     setProjectName(''); setProjectType('Software'); setProjectDesc('');
+  };
+
+  const toggleTask = (projectId: string, taskId: number) => {
+    setProjects((prev) =>
+      prev.map((p) => {
+        if (p.id !== projectId) return p;
+        const tasks = p.tasks.map((t) => t.id === taskId ? { ...t, done: !t.done } : t);
+        return { ...p, tasks, tasksDone: tasks.filter((t) => t.done).length };
+      })
+    );
+  };
+
+  const addTask = (projectId: string) => {
+    if (!newTaskText.trim()) return;
+    setProjects((prev) =>
+      prev.map((p) => {
+        if (p.id !== projectId) return p;
+        const newTask: Task = { id: Date.now(), text: newTaskText.trim(), done: false };
+        const tasks = [...p.tasks, newTask];
+        return { ...p, tasks, tasksTotal: tasks.length };
+      })
+    );
+    setNewTaskText('');
   };
 
   return (
@@ -127,6 +228,151 @@ export function Dashboard() {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* ── Projects ── */}
+      <div className="card" style={{ overflow: 'hidden', marginBottom: 10 }}>
+        <div style={{
+          padding: '16px 24px',
+          borderBottom: '1px solid var(--border)',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        }}>
+          <h2 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 16, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-0.01em', margin: 0 }}>
+            Projects
+          </h2>
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
+            {projects.length} total
+          </span>
+        </div>
+
+        {/* Project list */}
+        <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+          {projects.map((p, i) => {
+            const pct = p.tasksTotal > 0 ? Math.round((p.tasksDone / p.tasksTotal) * 100) : 0;
+            const color = TYPE_COLOR[p.type] ?? 'var(--text-3)';
+            const isOpen = openProject === p.id;
+            return (
+              <>
+                <li
+                  key={p.id}
+                  data-testid={`project-row-${p.id}`}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 16,
+                    padding: '14px 24px',
+                    borderBottom: (isOpen || i < projects.length - 1) ? '1px solid var(--border-subtle)' : 'none',
+                    transition: 'background 0.1s',
+                    cursor: 'default',
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--elevated)')}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = isOpen ? 'var(--elevated)' : 'transparent')}
+                >
+                  {/* Type dot */}
+                  <span style={{ width: 7, height: 7, borderRadius: '50%', background: color, flexShrink: 0 }} />
+
+                  {/* Name + type */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-1)', marginBottom: 2 }}>{p.name}</div>
+                    <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{p.type}</div>
+                  </div>
+
+                  {/* Progress bar */}
+                  <div style={{ width: 100, flexShrink: 0 }}>
+                    <div style={{ height: 3, borderRadius: 2, background: 'var(--elevated)', border: '1px solid var(--border)', overflow: 'hidden' }}>
+                      <div style={{ height: '100%', width: `${pct}%`, background: color, borderRadius: 2, transition: 'width 0.3s' }} />
+                    </div>
+                    <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'var(--text-3)', marginTop: 4, textAlign: 'right' }}>
+                      {p.tasksDone}/{p.tasksTotal} tasks
+                    </div>
+                  </div>
+
+                  {/* Open button */}
+                  <button
+                    data-testid={`open-project-${p.id}`}
+                    className="btn-ghost"
+                    style={{ padding: '5px 10px', fontSize: 11, flexShrink: 0 }}
+                    onClick={() => setOpenProject(isOpen ? null : p.id)}
+                  >
+                    {isOpen ? 'Close' : 'Open'}
+                  </button>
+                </li>
+
+                {/* Inline task panel */}
+                {isOpen && (
+                  <li
+                    key={`${p.id}-tasks`}
+                    data-testid={`project-tasks-${p.id}`}
+                    style={{
+                      background: 'var(--elevated)',
+                      borderBottom: i < projects.length - 1 ? '1px solid var(--border-subtle)' : 'none',
+                      padding: '16px 24px 20px 56px',
+                    }}
+                  >
+                    <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-2)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 10 }}>
+                      Tasks
+                    </div>
+
+                    <ul style={{ listStyle: 'none', margin: '0 0 12px', padding: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      {p.tasks.map((t) => (
+                        <li key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
+                          <button
+                            data-testid={`task-toggle-${p.id}-${t.id}`}
+                            onClick={() => toggleTask(p.id, t.id)}
+                            style={{
+                              width: 16, height: 16,
+                              borderRadius: 4,
+                              border: `1.5px solid ${t.done ? color : 'var(--border)'}`,
+                              background: t.done ? color : 'transparent',
+                              cursor: 'pointer',
+                              padding: 0,
+                              flexShrink: 0,
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              transition: 'background 0.1s, border-color 0.1s',
+                            }}
+                          >
+                            {t.done && (
+                              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M5 13l4 4L19 7"/>
+                              </svg>
+                            )}
+                          </button>
+                          <span style={{
+                            fontSize: 12, color: t.done ? 'var(--text-3)' : 'var(--text-1)',
+                            textDecoration: t.done ? 'line-through' : 'none',
+                            transition: 'color 0.1s',
+                          }}>
+                            {t.text}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    {/* Add task */}
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      <input
+                        type="text"
+                        placeholder="Add a task..."
+                        value={newTaskText}
+                        onChange={(e) => setNewTaskText(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && addTask(p.id)}
+                        data-testid={`add-task-input-${p.id}`}
+                        className="field-input"
+                        style={{ flex: 1, fontSize: 12 }}
+                      />
+                      <button
+                        data-testid={`add-task-btn-${p.id}`}
+                        className="btn-primary"
+                        style={{ padding: '6px 12px', fontSize: 12 }}
+                        onClick={() => addTask(p.id)}
+                      >
+                        Add
+                      </button>
+                    </div>
+                  </li>
+                )}
+              </>
+            );
+          })}
+        </ul>
       </div>
 
       {/* ── Chart + Activity ── */}
