@@ -70,10 +70,10 @@ export function App({ config, hostElement }: AppProps) {
     setIsLoading(true);
     clearHighlights();
 
-    // When user clicks Continue (same page): inject a fake exchange into history
-    // so Claude sees its own confirmation that the step was completed.
+    // When user clicks Continue: inject a fake exchange into history
+    // so Claude sees confirmation that the previous step was completed.
     // This is far more reliable than system prompt rules.
-    if (isContinuation && skipContext) {
+    if (isContinuation) {
       historyRef.current.push({ role: 'continuation', content: 'Done.' });
       historyRef.current.push({ role: 'assistant', content: 'Step completed.' });
     }
@@ -127,6 +127,7 @@ export function App({ config, hostElement }: AppProps) {
           site_name: config.siteName,
           api_key: config.apiKey,
           site_context: config.context || undefined,
+          context_url: config.contextUrl || undefined,
         },
       });
 

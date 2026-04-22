@@ -29,5 +29,6 @@ export interface ChatRequestBody {
   site_name?: string;
   api_key?: string;
   site_context?: string; // optional FAQ / docs injected by the SaaS customer
+  context_url?: string;  // URL the backend fetches and RAG-retrieves from
   input_values?: InputValueSnapshot[];
 }

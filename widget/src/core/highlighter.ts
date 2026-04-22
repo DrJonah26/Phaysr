@@ -430,7 +430,16 @@ export function showGuideOutput(options: GuideOutputOptions) {
   continueHandler = canContinue && options.onContinue
     ? options.onContinue
     : isDone
-      ? () => hideGuideOutput()
+      ? () => {
+          hideGuideOutput();
+          clearHighlights();
+          // Remove cursor: tracked ref first, then DOM fallback for robustness
+          (persistedCursorEl ?? document.getElementById(CURSOR_ID))?.remove();
+          persistedCursorEl = null;
+          lastCursorPos = null;
+          // Remove any rings still in DOM (safety net)
+          document.querySelectorAll(`.${RING_CLASS}`).forEach((el) => el.remove());
+        }
       : null;
 
   const showButton = canContinue || isDone;

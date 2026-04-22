@@ -1,10 +1,10 @@
 import { useState } from 'react';
 
 const STATS = [
-  { label: 'Active Projects', value: '12',  change: '+2 this week',  up: true },
-  { label: 'Team Members',    value: '8',   change: '+1 this month', up: true },
   { label: 'Tasks Completed', value: '247', change: '+18 today',     up: true },
   { label: 'Open Issues',     value: '5',   change: '−3 this week',  up: true },
+  { label: 'Active Projects', value: '12',  change: '+2 this week',  up: true },
+  { label: 'Team Members',    value: '8',   change: '+1 this month', up: true },
 ];
 
 const ACTIVITY = [
@@ -161,7 +161,7 @@ export function Dashboard() {
 
       {/* ── New project form ── */}
       {showNewProject && (
-        <div className="card" style={{ padding: 24, marginBottom: 20, borderColor: 'rgba(156,89,89,0.35)', boxShadow: '0 0 32px rgba(156,89,89,0.06)' }}>
+        <div className="card" style={{ padding: 24, marginBottom: 20, borderColor: 'rgba(31,75,22,0.35)', boxShadow: '0 0 32px rgba(31,75,22,0.06)' }}>
           <h2 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 18, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-0.01em', margin: '0 0 18px' }}>
             Create new project
           </h2>
@@ -213,7 +213,7 @@ export function Dashboard() {
       )}
 
       {/* ── Stats ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10, marginBottom: 16 }}>
         {STATS.map((s) => (
           <div key={s.label} className="card" style={{ padding: '18px 20px' }}>
             <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, fontWeight: 500, color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 10 }}>
@@ -376,7 +376,7 @@ export function Dashboard() {
       </div>
 
       {/* ── Chart + Activity ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 10 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 10, marginTop: 10 }}>
 
         {/* Chart */}
         <div className="card" style={{ padding: '22px 24px' }}>
@@ -385,7 +385,7 @@ export function Dashboard() {
               Project Velocity
             </h2>
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
-              2025
+              2026
             </span>
           </div>
           <div style={{ position: 'relative' }}>
@@ -404,7 +404,7 @@ export function Dashboard() {
                 <div key={i} style={{ flex: 1, height: `${h}%`, borderRadius: '3px 3px 0 0', overflow: 'hidden', position: 'relative' }}>
                   <div style={{
                     position: 'absolute', inset: 0,
-                    background: 'linear-gradient(to top, var(--accent) 0%, rgba(156,89,89,0.18) 100%)',
+                    background: 'linear-gradient(to top, var(--accent) 0%, rgba(31,75,22,0.18) 100%)',
                   }} />
                 </div>
               ))}
@@ -460,6 +460,7 @@ export function Dashboard() {
         </div>
 
       </div>
+
     </div>
   );
 }

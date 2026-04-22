@@ -4,6 +4,7 @@ export interface WidgetConfig {
   color: string;
   backendUrl: string;
   context: string; // extra knowledge injected into system prompt (FAQ, docs, etc.)
+  contextUrl?: string; // URL the backend fetches and RAG-retrieves from
 }
 
 const DEFAULTS: WidgetConfig = {
@@ -28,5 +29,6 @@ export function readConfigFromScriptTag(): WidgetConfig {
     color: script.getAttribute('data-color') ?? DEFAULTS.color,
     backendUrl: script.getAttribute('data-backend-url') ?? DEFAULTS.backendUrl,
     context: script.getAttribute('data-context') ?? DEFAULTS.context,
+    contextUrl: script.getAttribute('data-context-url') ?? undefined,
   };
 }

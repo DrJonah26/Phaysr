@@ -87,7 +87,7 @@ export function App() {
               fontWeight: 700,
               color: '#FFFFFF',
               lineHeight: 1,
-            }}>A</span>
+            }}>M</span>
           </div>
           <span style={{
             fontFamily: "'Cormorant Garamond', Georgia, serif",
@@ -95,7 +95,7 @@ export function App() {
             fontWeight: 700,
             color: 'var(--text-1)',
             letterSpacing: '-0.01em',
-          }}>Acme</span>
+          }}>Meridian</span>
         </div>
 
         {/* Nav */}

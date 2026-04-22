@@ -1,0 +1,29 @@
+## What is Meridian?
+Meridian is a project management tool that supports up to 500 projects per account. It lets teams organize tasks, track deadlines, and collaborate in real time.
+
+## How do I create a new project?
+Click the "New Project" button in the top-right corner of the Dashboard. Enter a project name and optional description, then click Create.
+
+## How do I invite team members?
+Go to the Team page using the sidebar. Click "Invite Member", enter the email address, choose a role (Admin or Member), and click Send Invite.
+
+## How do I upgrade my plan?
+Open Settings from the sidebar. Navigate to the Billing tab and click "Upgrade Plan". Choose a plan and enter your payment details.
+
+## How do I cancel my subscription?
+Go to Settings > Billing. Scroll to the bottom and click "Cancel Subscription". Confirm in the dialog that appears.
+
+## How many projects can I have?
+Meridian supports up to 500 projects per account on the Pro plan. The Free plan is limited to 3 active projects.
+
+## How do I delete a project?
+Open the project, click the three-dot menu in the top-right, and select "Delete Project". This action cannot be undone.
+
+## How do I change my password?
+Go to Settings > Account > Security. Click "Change Password" and follow the prompts.
+
+## Is there a mobile app?
+Meridian is available as a web app and a mobile app for iOS and Android. Download it from the App Store or Google Play.
+
+## How do I contact support?
+Click the help icon in the bottom-left corner or email support@meridian.app. The support team responds within 24 hours on business days.
