@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { streamSSE } from 'hono/streaming';
 import Anthropic from '@anthropic-ai/sdk';
 import type { ChatRequestBody, DOMElementSnapshot } from '../types.js';
+import { findProjectByApiKey } from './projects.js';
 
 export const chatRoute = new Hono();
 
@@ -227,11 +228,17 @@ chatRoute.post('/', async (c) => {
   }
 
   const client = new Anthropic({ apiKey });
-  const siteName = body.site_name ?? 'this site';
 
-  const urlEntry = body.context_url ? await fetchUrlContext(body.context_url) : null;
+  // If the widget sent an api_key, resolve project config server-side (source of truth).
+  // Fall back to body-provided values if no matching project exists (local/demo mode).
+  const project = body.api_key ? findProjectByApiKey(body.api_key) : null;
+  const siteName = project?.site_name ?? body.site_name ?? 'this site';
+  const siteContext = project?.context ?? body.site_context;
+  const contextUrl = project?.context_url ?? body.context_url;
+
+  const urlEntry = contextUrl ? await fetchUrlContext(contextUrl) : null;
   const urlChunks = urlEntry ? retrieveRelevantChunks(urlEntry.chunks, body.question) : [];
-  const parts = [body.site_context, ...urlChunks].filter(Boolean);
+  const parts = [siteContext, ...urlChunks].filter(Boolean);
   const mergedContext = parts.length > 0 ? parts.join('\n\n---\n\n') : undefined;
 
   const system = buildSystemPrompt(siteName, mergedContext);
