@@ -1,5 +1,5 @@
 /* ── LANDING NAV ── */
-nav {
+.landing-page nav {
   position: fixed; top: 0; left: 0; right: 0; z-index: 100;
   display: flex; align-items: center; justify-content: space-between;
   padding: 0 40px; height: 64px;
@@ -47,13 +47,13 @@ nav {
   0%,100% { opacity:1; transform:scale(1); }
   50% { opacity:.5; transform:scale(1.35); }
 }
-h1 {
+.landing-page h1 {
   font-family: var(--serif);
   font-size: clamp(38px, 4.5vw, 64px);
   line-height: 1.04; letter-spacing: -0.03em;
   max-width: 880px; color: var(--ink); margin-bottom: 28px;
 }
-h1 em { font-style: italic; color: var(--accent); }
+.landing-page h1 em { font-style: italic; color: var(--accent); }
 .hero-sub {
   font-size: clamp(17px, 1.6vw, 21px); color: var(--ink2);
   max-width: 560px; line-height: 1.6; margin-bottom: 44px;
@@ -148,13 +148,7 @@ h1 em { font-style: italic; color: var(--accent); }
   line-height: 1.08; letter-spacing: -0.025em;
   margin-bottom: 72px; max-width: 560px;
 }
-.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; position: relative; }
-.steps::before {
-  content: ''; position: absolute; top: 36px;
-  left: calc(16.666% + 24px); right: calc(16.666% + 24px);
-  height: 1px; background: linear-gradient(90deg, var(--accent), var(--accent2));
-  opacity: 0.35; z-index: 0;
-}
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; }
 .step { padding: 0 40px 0 0; position: relative; z-index: 1; }
 .step:last-child { padding-right: 0; }
 .step-num {
@@ -258,23 +252,23 @@ h1 em { font-style: italic; color: var(--accent); }
 .form-note { margin-top: 14px; font-size: 13px; color: var(--ink2); opacity: .7; }
 
 /* ── FOOTER ── */
-footer {
+.landing-page footer {
   padding: 40px; border-top: 1px solid var(--border);
   display: flex; justify-content: space-between; align-items: center;
   flex-wrap: wrap; gap: 16px; font-size: 14px; color: var(--ink2);
 }
-footer .logo { font-family: var(--serif); font-size: 18px; color: var(--ink); }
-footer .logo span { color: var(--accent); }
+.landing-page footer .logo { font-family: var(--serif); font-size: 18px; color: var(--ink); }
+.landing-page footer .logo span { color: var(--accent); }
 
 /* ── RESPONSIVE ── */
 @media (max-width: 768px) {
-  nav { padding: 0 20px; }
+  .landing-page nav { padding: 0 20px; }
   .nav-links { display: none; }
   #hero { padding: 100px 20px 60px; }
-  h1 { font-size: 44px; }
+  .landing-page h1 { font-size: 44px; }
   .pain-grid, .steps, .features-grid { grid-template-columns: 1fr; }
   .pain-card { border-right: none !important; }
-  #pain, #features, #compare, #cta, footer { padding-left: 20px; padding-right: 20px; }
+  #pain, #features, #compare, #cta, .landing-page footer { padding-left: 20px; padding-right: 20px; }
   #how { padding-left: 20px; padding-right: 20px; }
   .steps { gap: 40px; }
   .steps::before { display: none; }

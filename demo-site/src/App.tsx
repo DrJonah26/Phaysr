@@ -5,6 +5,7 @@ import SignIn from './pages/SignIn';
 import SignUp from './pages/SignUp';
 import Onboarding from './pages/Onboarding';
 import Embed from './pages/Embed';
+import { DemoApp } from './DemoApp';
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -16,15 +17,20 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
 export function App() {
   const location = useLocation();
   return (
-    <div key={location.key} className="page-transition">
     <Routes location={location}>
-      <Route path="/" element={<Landing />} />
-      <Route path="/signin" element={<SignIn />} />
-      <Route path="/signup" element={<SignUp />} />
-      <Route path="/onboarding" element={<RequireAuth><Onboarding /></RequireAuth>} />
-      <Route path="/embed" element={<RequireAuth><Embed /></RequireAuth>} />
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="/demo-site/*" element={<DemoApp />} />
+      <Route path="*" element={
+        <div key={location.key} className="page-transition">
+          <Routes location={location}>
+            <Route path="/" element={<Landing />} />
+            <Route path="/signin" element={<SignIn />} />
+            <Route path="/signup" element={<SignUp />} />
+            <Route path="/onboarding" element={<RequireAuth><Onboarding /></RequireAuth>} />
+            <Route path="/embed" element={<RequireAuth><Embed /></RequireAuth>} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </div>
+      } />
     </Routes>
-    </div>
   );
 }

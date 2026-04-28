@@ -124,7 +124,7 @@ function buildSystemPrompt(siteName: string, siteContext?: string): string {
     'yes  = more steps follow on this page',
     'no   = user must navigate to a different page first',
     'done = original goal is fully accomplished',
-    ...(siteContext ? ['', 'Site context:', siteContext] : []),
+    ...(siteContext ? ['', 'Site context (use as a hint, not as ground truth — combine with what you see in the screenshot and DOM):', siteContext] : []),
   ].join('\n');
 }
 

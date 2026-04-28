@@ -2,28 +2,34 @@
 Meridian is a project management tool that supports up to 500 projects per account. It lets teams organize tasks, track deadlines, and collaborate in real time.
 
 ## How do I create a new project?
-Click the "New Project" button in the top-right corner of the Dashboard. Enter a project name and optional description, then click Create.
+Click the "+ New project" button on the top-right of the Dashboard page. A modal will open — enter a project name, choose a type (Software, Design, Marketing, or Research) and a priority (Low, Medium, High), then click "Create project".
 
 ## How do I invite team members?
-Go to the Team page using the sidebar. Click "Invite Member", enter the email address, choose a role (Admin or Member), and click Send Invite.
+Click "Team" in the left sidebar. Then click the "+ Invite member" button in the top-right. Enter the email address, choose a role (Admin or Member), and click "Send invite".
 
 ## How do I upgrade my plan?
-Open Settings from the sidebar. Navigate to the Billing tab and click "Upgrade Plan". Choose a plan and enter your payment details.
+Click "Billing" in the left sidebar. Choose a plan (Pro at $29/mo or Enterprise at $99/mo) and click the Confirm button at the bottom. You can also reach Billing via Settings — click "Upgrade plan" in the Subscription section.
 
 ## How do I cancel my subscription?
-Go to Settings > Billing. Scroll to the bottom and click "Cancel Subscription". Confirm in the dialog that appears.
+Meridian does not currently offer self-serve cancellation. Contact support@meridian.app to cancel your subscription.
 
 ## How many projects can I have?
-Meridian supports up to 500 projects per account on the Pro plan. The Free plan is limited to 3 active projects.
+The Pro plan supports unlimited projects. The Free plan is limited to 3 active projects.
 
 ## How do I delete a project?
-Open the project, click the three-dot menu in the top-right, and select "Delete Project". This action cannot be undone.
+Open the project from the Dashboard and click the three-dot menu, then select "Delete Project". This action cannot be undone.
+
+## How do I change my account settings?
+Click "Settings" in the left sidebar. You can update your full name, email address, and notification preferences (email and Slack). Click "Save changes" when done.
 
 ## How do I change my password?
-Go to Settings > Account > Security. Click "Change Password" and follow the prompts.
+Go to Settings in the left sidebar. Scroll to the Security section and click "Change Password".
 
 ## Is there a mobile app?
 Meridian is available as a web app and a mobile app for iOS and Android. Download it from the App Store or Google Play.
 
 ## How do I contact support?
-Click the help icon in the bottom-left corner or email support@meridian.app. The support team responds within 24 hours on business days.
+Email support@meridian.app. The support team responds within 24 hours on business days.
+
+## What pages does Meridian have?
+The left sidebar has four pages: Dashboard (overview with stats and recent projects), Settings (profile and notifications), Billing (plan selection and invoices), and Team (member list and invites).

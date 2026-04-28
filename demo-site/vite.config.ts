@@ -13,7 +13,7 @@ function spaFallback(): Plugin {
         // Let Vite handle internals, API proxy, files, and /demo-site/ MPA entry
         if (
           url.startsWith('/api/') ||
-          url.startsWith('/demo-site/') ||
+          url.startsWith('/demo-site') ||
           url.startsWith('/@') ||
           url.startsWith('/__') ||
           url.includes('.')

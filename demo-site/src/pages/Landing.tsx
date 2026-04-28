@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Code2, ScanEye, Crosshair,
-  Eye, MessageCircle, Zap, TrendingDown, ArrowUpRight,
+  Eye, ListOrdered, Zap, TrendingDown, ArrowUpRight,
 } from 'lucide-react';
 import './landing.css';
 
@@ -24,7 +24,7 @@ export default function Landing() {
   }, []);
 
   return (
-    <>
+    <div className="landing-page">
       {/* NAV */}
       <nav>
         <a className="nav-logo" href="#">Phays<span>r</span></a>
@@ -44,7 +44,7 @@ export default function Landing() {
           One script tag. Zero setup. Live today.
         </div>
         <h1>The AI assistant that <em>sees</em> your product</h1>
-        <p className="hero-sub">Phaysr embeds in any SaaS with a single line of code — and guides users by pointing at the exact element they need, like a human support agent on screen.</p>
+        <p className="hero-sub">Paste one script tag and Phaysr is live. It guides your users step by step, pointing at the exact element they need right on screen. Like a human support agent, without the headcount.</p>
         <div className="hero-actions">
           <Link to="/signup" className="btn-primary-land">Get started free →</Link>
           <a href="#how" className="btn-secondary-land">See how it works →</a>
@@ -69,7 +69,7 @@ export default function Landing() {
           {[
             { stat: '40%+', title: 'of tickets are "where do I click?"', desc: 'Support teams spend half their day answering navigation questions that a single highlighted arrow could have solved in two seconds.' },
             { stat: '60%',  title: 'of new users churn before their aha-moment', desc: "Onboarding tours feel patronizing, break on layout changes, and get skipped entirely. Users quit before they understand your product's value." },
-            { stat: '3×',   title: 'features go unused — they just aren\'t discovered', desc: "You built it. They don't know it exists. Feature adoption is low not because users don't want it, but because they never find it." },
+            { stat: '3×',   title: 'features go unused. They just aren\'t discovered', desc: "You built it. They don't know it exists. Feature adoption is low not because users don't want it, but because they never find it." },
             { stat: 'Weeks',title: 'lost setting up Pendo, Appcues, Intercom tours', desc: 'Existing tools demand elaborate setup, constant maintenance, and break every time you ship a UI update. The overhead kills momentum.' },
           ].map((c) => (
             <div className="pain-card" key={c.stat}>
@@ -91,20 +91,20 @@ export default function Landing() {
               <div className="step-num">Step 01</div>
               <div className="step-icon"><Code2 size={22} /></div>
               <h3>Paste one script tag</h3>
-              <p>Drop a single line into your app's HTML — no SDKs, no build step, no config files. Phaysr is live immediately.</p>
-              <div className="step-code">{'<script src="https://phaysr.ai/embed.js"\n  data-key="YOUR_KEY"></script>'}</div>
+              <p>Drop a single line into your app's HTML. No SDKs, no build step, no config files. Phaysr is live immediately.</p>
+              <div className="step-code">{'<script src="https://phaysr.ai/embed.js"\n  data-api-key="YOUR_KEY"\n  data-site-name="MyApp"></script>'}</div>
             </div>
             <div className="step">
               <div className="step-num">Step 02</div>
               <div className="step-icon"><ScanEye size={22} /></div>
               <h3>AI reads the live page</h3>
-              <p>Phaysr captures the current DOM and a screenshot in real time — it knows exactly what the user is looking at, not just what the page should look like.</p>
+              <p>On every question, Phaysr captures a DOM snapshot and a screenshot of the current viewport. It knows the exact layout the user is looking at right now, not a cached version of your app.</p>
             </div>
             <div className="step">
               <div className="step-num">Step 03</div>
               <div className="step-icon"><Crosshair size={22} /></div>
-              <h3>Points at the exact element</h3>
-              <p>When a user asks a question, Phaysr highlights the precise UI element they need — a visual pulse, not a wall of text. Like a human pointing at a screen.</p>
+              <h3>Guides them through it</h3>
+              <p>Phaysr highlights the exact element with a visual pulse and walks users through multi-step tasks one step at a time. After each action, just hit Continue and Phaysr checks the updated page to give the next instruction.</p>
             </div>
           </div>
         </div>
@@ -116,12 +116,12 @@ export default function Landing() {
         <h2>Built to work without your product team babysitting it</h2>
         <div className="features-grid">
           {[
-            { icon: <Eye size={20} />,          title: 'Visual context awareness',   desc: 'Reads both the DOM and a live screenshot — understands layout, not just element names. Works even when your selectors change.' },
-            { icon: <Crosshair size={20} />,    title: 'Element highlighting',       desc: 'Pulses a visual indicator directly on the element the user needs to interact with. No ambiguous instructions.' },
-            { icon: <MessageCircle size={20} />,title: 'Floating chat bubble',       desc: 'Sits unobtrusively in the corner of your app — available on demand, never in the way. Feels native, not bolted on.' },
-            { icon: <Zap size={20} />,          title: 'Zero-maintenance setup',     desc: 'No tours to record, no flows to configure. Phaysr understands your product from the live page — ship UI changes freely.' },
-            { icon: <TrendingDown size={20} />, title: 'Support ticket deflection',  desc: 'Handles "where do I click?" questions instantly. Your support team gets to focus on problems that actually need humans.' },
-            { icon: <ArrowUpRight size={20} />, title: 'Accelerates aha-moments',   desc: 'Guides new users to their first win before they churn. No onboarding tour required — just answers when they need them.' },
+            { icon: <Eye size={20} />,          title: 'Visual context awareness',   desc: 'On every question, Phaysr reads the DOM and takes a live screenshot. It knows what your users actually see at that moment, not a cached version of your app.' },
+            { icon: <Crosshair size={20} />,    title: 'Pixel-perfect highlighting', desc: 'Phaysr uses CSS selectors to pulse an animated ring around the exact element the user needs. It stays accurate after scrolling and survives layout changes.' },
+            { icon: <ListOrdered size={20} />,  title: 'Step-by-step guided flows',  desc: 'For multi-step tasks, Phaysr gives one instruction at a time. After each step, it re-reads the live page and continues up to six steps deep.' },
+            { icon: <Zap size={20} />,          title: 'Zero-maintenance setup',     desc: 'No tours to record, no flows to configure, no selectors to maintain. Phaysr reads your live page on demand. Ship UI changes freely.' },
+            { icon: <TrendingDown size={20} />, title: 'Support ticket deflection',  desc: 'Phaysr answers navigation questions right inside the app, the moment users get stuck. Your support team gets to focus on problems that actually need humans.' },
+            { icon: <ArrowUpRight size={20} />, title: 'Feed it your docs',          desc: 'Point Phaysr at your FAQ or documentation URL. It retrieves relevant sections per question so answers are specific to your product, not generic AI.' },
           ].map((f) => (
             <div className="feat" key={f.title}>
               <div className="feat-icon">{f.icon}</div>
@@ -151,8 +151,8 @@ export default function Landing() {
                 ['Setup time', <strong>One script tag</strong>, 'Days–weeks', 'Weeks–months'],
                 ['Survives UI changes', <span className="check">✓</span>, <span className="cross">✗</span>, <span className="cross">✗</span>],
                 ['Sees the live page visually', <span className="check">✓</span>, <span className="cross">✗</span>, <span className="cross">✗</span>],
-                ['Highlights exact UI element', <span className="check">✓</span>, <span className="partial">Guided tours only</span>, <span className="partial">Guided tours only</span>],
-                ['Works without configuration', <span className="check">✓</span>, <span className="cross">✗</span>, <span className="cross">✗</span>],
+                ['Highlights exact UI element', <span className="check">✓</span>, <span className="partial">Tours only</span>, <span className="partial">Tours only</span>],
+                ['Guides multi-step tasks', <span className="check">✓</span>, <span className="partial">Scripted flows</span>, <span className="partial">Scripted flows</span>],
                 ['Price', <strong>Starts free</strong>, '$$$', '$$$$'],
               ].map(([label, phaysr, col2, col3]) => (
                 <tr key={String(label)}>
@@ -170,8 +170,8 @@ export default function Landing() {
       {/* CTA */}
       <section id="cta">
         <p className="section-label">Get started</p>
-        <h2>Ship <em>AI that sees</em> — in 60 seconds</h2>
-        <p>Create an account, paste one script tag, and your users get an AI guide that highlights the exact element they need.</p>
+        <h2>Ship <em>AI that sees</em> in 60 seconds</h2>
+        <p>Create an account, paste one script tag, and your users get an AI guide that reads the live page and walks them through anything step by step.</p>
         <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 16 }}>
           <Link to="/signup" className="btn-primary-land" style={{ padding: '15px 34px' }}>Create your account →</Link>
           <a href="/demo-site/" className="btn-secondary-land">See live demo</a>
@@ -182,9 +182,9 @@ export default function Landing() {
       {/* FOOTER */}
       <footer>
         <div className="logo">Phays<span>r</span></div>
-        <div>AI that sees your product. One line of code.</div>
+        <div>AI that sees your product and guides users through it.</div>
         <div>© 2026 Phaysr</div>
       </footer>
-    </>
+    </div>
   );
 }
