@@ -233,9 +233,11 @@ function positionGuideOutput() {
     }
   }
 
-  // Absolute fallback: top-left corner
-  const newLeft = margin;
-  const newTop  = margin;
+  // Absolute fallback: keep last known position to avoid jarring jumps,
+  // or fall back to bottom-right if this is the very first placement.
+  if (lastGuideOutputPos) return;
+  const newLeft = Math.round(W - gW - margin);
+  const newTop  = Math.round(Math.max(margin, H - gH - 110));
   guideOutputEl.style.left = `${newLeft}px`;
   guideOutputEl.style.top  = `${newTop}px`;
   lastGuideOutputPos = { left: newLeft, top: newTop };
@@ -373,7 +375,20 @@ async function drawRingWithCursor(target: Element, color: string): Promise<void>
 
   const reposition = () => {
     if (cancelled) return;
+    // Element removed from DOM (e.g. modal closed) — stop tracking so the
+    // guide output doesn't get repositioned to (0,0) via the stale rect.
+    if (!target.isConnected) {
+      lastHighlightRect = null;
+      cleanup();
+      return;
+    }
     const r = target.getBoundingClientRect();
+    // Element became invisible (zero rect) — same treatment.
+    if (r.width === 0 && r.height === 0) {
+      lastHighlightRect = null;
+      cleanup();
+      return;
+    }
     ring!.style.top = `${r.top - 4}px`;
     ring!.style.left = `${r.left - 4}px`;
     ring!.style.width = `${r.width + 8}px`;
