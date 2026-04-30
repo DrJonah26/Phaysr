@@ -35,6 +35,13 @@ interface AppProps {
 export function App({ config, hostElement }: AppProps) {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(true);
+
+  const SUGGESTIONS = [
+    'How do I create a new project?',
+    'How do I switch to the Enterprise plan?',
+    'How do I invite a team member?',
+  ];
 
   const isLoadingRef = useRef(false);
   const historyRef = useRef<ConversationMessage[]>([]);
@@ -218,6 +225,7 @@ export function App({ config, hostElement }: AppProps) {
     if (!question || isLoadingRef.current) return;
 
     setInput('');
+    setShowWelcome(false);
     activeGoalRef.current = question;
     continueStepCountRef.current = 0;
     expectingNavRef.current = false;
@@ -270,8 +278,33 @@ export function App({ config, hostElement }: AppProps) {
     hideGuideOutput();
   }, []);
 
+  const handleSuggestion = useCallback((text: string) => {
+    if (isLoadingRef.current) return;
+    setShowWelcome(false);
+    setInput('');
+    activeGoalRef.current = text;
+    continueStepCountRef.current = 0;
+    expectingNavRef.current = false;
+    void sendMessageRef.current(text, false);
+  }, []);
+
   return (
     <div class="root">
+      {showWelcome && (
+        <div class="welcome-card">
+          <p class="welcome-intro">
+            <strong>👋 Welcome to the Phaysr demo!</strong><br />
+            Ask anything and watch Phaysr highlight the exact element on screen. Try one of these:
+          </p>
+          <div class="welcome-chips">
+            {SUGGESTIONS.map(s => (
+              <button key={s} class="welcome-chip" onClick={() => handleSuggestion(s)}>
+                {s}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
       <div class="input-dock">
         <input
           class="dock-input"

@@ -404,7 +404,7 @@ export function Dashboard() {
                 <div key={i} style={{ flex: 1, height: `${h}%`, borderRadius: '3px 3px 0 0', overflow: 'hidden', position: 'relative' }}>
                   <div style={{
                     position: 'absolute', inset: 0,
-                    background: 'linear-gradient(to top, var(--accent) 0%, rgba(31,75,22,0.18) 100%)',
+                    background: 'linear-gradient(to top, var(--accent) 0%, rgba(156,89,89,0.18) 100%)',
                   }} />
                 </div>
               ))}

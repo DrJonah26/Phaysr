@@ -102,24 +102,6 @@ function Dashboard({ onNavigate }: { onNavigate: (p: Page) => void }) {
         ))}
       </div>
 
-      <div className="dm-quick-links">
-        <div className="dm-section-title" style={{ marginTop: 28 }}>Quick Actions</div>
-        <div className="dm-quick-grid">
-          <button className="dm-quick-card" onClick={() => onNavigate('team')} data-testid="quick-invite">
-            <span className="dm-quick-icon"><IconTeam size={18} /></span>
-            <span>Invite a team member</span>
-          </button>
-          <button className="dm-quick-card" onClick={() => onNavigate('billing')} data-testid="quick-upgrade">
-            <span className="dm-quick-icon"><IconCard size={18} /></span>
-            <span>Upgrade your plan</span>
-          </button>
-          <button className="dm-quick-card" onClick={() => onNavigate('settings')} data-testid="quick-settings">
-            <span className="dm-quick-icon"><IconSettings size={18} /></span>
-            <span>Update account settings</span>
-          </button>
-        </div>
-      </div>
-
       {showNewProject && (
         <Modal title="Create New Project" onClose={() => setShowNewProject(false)}>
           {created ? (
@@ -452,7 +434,7 @@ export function DemoApp() {
     script.setAttribute('data-widget', 'ai-buddy');
     script.setAttribute('data-api-key', 'demo_local');
     script.setAttribute('data-site-name', 'Meridian');
-    script.setAttribute('data-color', '#1F4B16');
+    script.setAttribute('data-color', '#9C5959');
     script.setAttribute('data-backend-url', 'http://localhost:3000');
     script.setAttribute('data-context-url', 'http://localhost:5173/faq.txt');
     script.defer = true;

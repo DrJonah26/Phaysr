@@ -1,16 +1,16 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap');
 
 .demo-root {
-  --bg:         #F2F6F2;
+  --bg:         #F7F3EE;
   --surface:    #FFFFFF;
-  --sidebar-bg: #E4EDE4;
-  --elevated:   #D5E2D5;
-  --border:     #C8D9C8;
-  --accent:     #2D7A52;
-  --accent-dim: rgba(45, 122, 82, 0.10);
-  --text-1:     #101C12;
-  --text-2:     #4A5D4E;
-  --text-3:     #8FA896;
+  --sidebar-bg: #EDE6DF;
+  --elevated:   #E1D8D0;
+  --border:     #D5C9C0;
+  --accent:     #9C5959;
+  --accent-dim: rgba(156, 89, 89, 0.10);
+  --text-1:     #1C1410;
+  --text-2:     #6B5D56;
+  --text-3:     #B3A49B;
   --green:      #2D7A52;
 
   position: fixed;

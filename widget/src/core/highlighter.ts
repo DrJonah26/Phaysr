@@ -14,7 +14,7 @@ let guideOutputEl: HTMLDivElement | null = null;
 let guideOutputTextEl: HTMLDivElement | null = null;
 let guideOutputMetaEl: HTMLDivElement | null = null;
 let guideOutputButtonEl: HTMLButtonElement | null = null;
-let guideOutputColor = '#3B82F6';
+let guideOutputColor = '#9C5959';
 let lastHighlightRect: DOMRect | null = null;
 let lastGuideOutputPos: { left: number; top: number } | null = null;
 let guideOutputPendingReveal = false; // true when we have text but no target rect yet
@@ -102,7 +102,7 @@ function ensureGuideOutput() {
   el.style.padding = '12px';
   el.style.borderRadius = '12px';
   el.style.background = 'rgba(255, 255, 255, 0.97)';
-  el.style.border = '2px solid #3B82F6';
+  el.style.border = '2px solid #9C5959';
   el.style.boxShadow = '0 16px 40px rgba(0, 0, 0, 0.22)';
   el.style.backdropFilter = 'blur(10px)';
   el.style.display = 'block';
@@ -534,7 +534,7 @@ export function clearHighlights() {
   lastHighlightRect = null;
 }
 
-export function highlightElement(selector: string, color = '#3B82F6'): boolean {
+export function highlightElement(selector: string, color = '#9C5959'): boolean {
   if (selector === 'none') return true;
 
   let target: Element | null = null;

@@ -10,7 +10,7 @@ export interface WidgetConfig {
 const DEFAULTS: WidgetConfig = {
   apiKey: '',
   siteName: 'this site',
-  color: '#3B82F6',
+  color: '#9C5959',
   backendUrl: 'http://localhost:3000',
   context: '',
 };

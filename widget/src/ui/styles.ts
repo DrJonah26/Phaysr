@@ -69,6 +69,48 @@ export function getWidgetStyles(color: string): string {
       cursor: not-allowed;
       transform: none;
     }
+    .welcome-card {
+      pointer-events: auto;
+      width: min(420px, calc(100vw - 32px));
+      background: #fff;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 14px 16px 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.10);
+    }
+    .welcome-intro {
+      margin: 0 0 10px;
+      font-size: 12.5px;
+      line-height: 1.5;
+      color: #374151;
+    }
+    .welcome-intro strong {
+      font-size: 13px;
+      color: #111827;
+    }
+    .welcome-chips {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .welcome-chip {
+      pointer-events: auto;
+      text-align: left;
+      background: #f9fafb;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 7px;
+      padding: 7px 11px;
+      font-size: 12px;
+      color: #374151;
+      cursor: pointer;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .welcome-chip:hover {
+      border-color: ${color};
+      background: #fff;
+      color: #111827;
+    }
     @media (max-width: 560px) {
       .root {
         right: 10px;
