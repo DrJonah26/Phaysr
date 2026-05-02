@@ -92,7 +92,7 @@ export default function Landing() {
               <div className="step-icon"><Code2 size={22} /></div>
               <h3>Paste one script tag</h3>
               <p>Drop a single line into your app's HTML. No SDKs, no build step, no config files. Phaysr is live immediately.</p>
-              <div className="step-code">{'<script src="https://phaysr.ai/embed.js"\n  data-api-key="YOUR_KEY"\n  data-site-name="MyApp"></script>'}</div>
+              <div className="step-code">{'<script\n  src="https://cdn.phaysr.ai/widget.js"\n  data-api-key="phs_live_YOUR_KEY"\n  data-site-name="MyApp"\n  data-color="#6366f1"\n  data-backend-url="https://api.phaysr.ai"\n  defer\n></script>'}</div>
             </div>
             <div className="step">
               <div className="step-num">Step 02</div>

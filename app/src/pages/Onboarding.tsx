@@ -10,7 +10,7 @@ export default function Onboarding() {
   const nav = useNavigate();
 
   const [siteName, setSiteName] = useState('');
-  const [color, setColor] = useState('#f05c2a');
+  const [color, setColor] = useState('#9C5959');
   const [tab, setTab] = useState<KnowledgeTab>('url');
   const [contextUrl, setContextUrl] = useState('');
   const [contextText, setContextText] = useState('');
@@ -81,20 +81,22 @@ export default function Onboarding() {
             <div className="field">
               <label>Brand color</label>
               <div className="color-row">
-                <input
-                  type="color"
-                  className="color-preview"
-                  value={color}
-                  onChange={(e) => handleColorInput(e.target.value)}
-                />
+                <div className="color-swatch-wrap">
+                  <div className="color-swatch" style={{ background: color }} />
+                  <input
+                    type="color"
+                    className="color-native"
+                    value={color}
+                    onChange={(e) => handleColorInput(e.target.value)}
+                  />
+                </div>
                 <input
                   type="text"
-                  className="field color-hex-input"
-                  style={{ margin: 0 }}
+                  className="color-hex-input"
                   value={color}
                   onChange={(e) => handleHexInput(e.target.value)}
                   maxLength={7}
-                  placeholder="#f05c2a"
+                  placeholder="#9C5959"
                 />
               </div>
             </div>
@@ -102,7 +104,7 @@ export default function Onboarding() {
             <div className="divider" />
 
             <div className="field">
-              <label>Knowledge source <span style={{ color: 'var(--ink2)', fontWeight: 400 }}>(optional — helps AI answer product-specific questions)</span></label>
+              <label>Knowledge source <span style={{ color: 'var(--ink2)', fontWeight: 400 }}>(optional, helps AI answer product-specific questions)</span></label>
               <div className="tabs">
                 <button
                   type="button"

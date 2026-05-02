@@ -4,6 +4,7 @@ import { useAuth } from '../auth';
 import { api, type Project } from '../api';
 
 const WIDGET_SRC = 'https://cdn.phaysr.ai/widget.js';
+const BACKEND_URL = 'https://api.phaysr.ai';
 
 export default function Embed() {
   const { user, signout } = useAuth();
@@ -29,7 +30,7 @@ export default function Embed() {
 
   if (loading || !project) return null;
 
-  const snippet = `<script\n  src="${WIDGET_SRC}"\n  data-api-key="${project.apiKey}"\n  defer\n></script>`;
+  const snippet = `<script\n  src="${WIDGET_SRC}"\n  data-api-key="${project.apiKey}"\n  data-site-name="${project.siteName}"\n  data-color="${project.color}"\n  data-backend-url="${BACKEND_URL}"\n  defer\n></script>`;
 
   async function copy() {
     await navigator.clipboard.writeText(snippet);
@@ -56,7 +57,7 @@ export default function Embed() {
           </div>
 
           <h1>Your embed code is <em>ready</em></h1>
-          <p className="sub">Paste this snippet into your app and the widget is live — no other setup needed.</p>
+          <p className="sub">Paste this snippet into your app and the widget goes live. No other setup needed.</p>
 
           <div className="code-block-wrap">
             <button className={`copy-btn${copied ? ' copied' : ''}`} onClick={copy}>
@@ -66,6 +67,9 @@ export default function Embed() {
               <span className="kw">{'<script'}</span>{'\n'}
               {'  '}<span className="attr">src</span>=<span className="val">"{WIDGET_SRC}"</span>{'\n'}
               {'  '}<span className="attr">data-api-key</span>=<span className="val">"{project.apiKey}"</span>{'\n'}
+              {'  '}<span className="attr">data-site-name</span>=<span className="val">"{project.siteName}"</span>{'\n'}
+              {'  '}<span className="attr">data-color</span>=<span className="val">"{project.color}"</span>{'\n'}
+              {'  '}<span className="attr">data-backend-url</span>=<span className="val">"{BACKEND_URL}"</span>{'\n'}
               {'  '}<span className="kw">defer</span>{'\n'}
               <span className="kw">{'></script>'}</span>
             </pre>
@@ -82,7 +86,7 @@ export default function Embed() {
               <h3>Paste before <code>{'</body>'}</code></h3>
               <p>
                 In your app's HTML, paste the snippet just before the closing <code>{'</body>'}</code> tag.
-                Works with any framework — Next.js, Vue, plain HTML, WordPress.
+                Works with any framework: Next.js, Vue, plain HTML, WordPress.
               </p>
             </div>
             <div className="embed-step">
