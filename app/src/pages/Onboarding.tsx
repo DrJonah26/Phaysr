@@ -62,7 +62,7 @@ export default function Onboarding() {
       <div className="onboarding-wrap">
         <div className="onboarding-card">
           <h1>Set up your widget</h1>
-          <p>This takes 60 seconds. You'll get a script tag to paste into your app.</p>
+          <p>You'll get a script tag to paste into your app.</p>
 
           {error && <div className="alert alert-error">{error}</div>}
 
