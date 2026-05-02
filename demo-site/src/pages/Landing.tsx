@@ -170,7 +170,7 @@ export default function Landing() {
       {/* CTA */}
       <section id="cta">
         <p className="section-label">Get started</p>
-        <h2>Ship <em>AI that sees</em> in 60 seconds</h2>
+        <h2>Get started in only <em style={{ color: '#9C5959', fontStyle: 'normal' }}>60 seconds</em></h2>
         <p>Create an account, paste one script tag, and your users get an AI guide that reads the live page and walks them through anything step by step.</p>
         <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 16 }}>
           <Link to="/signup" className="btn-primary-land" style={{ padding: '15px 34px' }}>Create your account →</Link>

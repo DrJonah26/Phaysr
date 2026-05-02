@@ -115,6 +115,7 @@ function buildSystemPrompt(siteName: string, siteContext?: string): string {
     '- If form fields are already filled, acknowledge this and move to the next step.',
     '- If element is not on current page, explain navigation only. No SELECTOR.',
     '- If element does not exist in the DOM list at all: say so directly and confidently. No hedging, no "may be", no "might".',
+    '- If the question is unclear, off-topic, unrelated to navigating this site, or a trick question: politely decline, explain what you can help with, then return CONTINUE:done.',
     '',
     'End EVERY answer with exactly these two lines:',
     'SELECTOR:<selector-or-none>',
@@ -123,7 +124,7 @@ function buildSystemPrompt(siteName: string, siteContext?: string): string {
     'CONTINUE values:',
     'yes  = more steps follow on this page',
     'no   = user must navigate to a different page first',
-    'done = original goal is fully accomplished',
+    'done = original goal is fully accomplished OR question was off-topic/unclear/unanswerable',
     ...(siteContext ? ['', 'Site context (use as a hint, not as ground truth — combine with what you see in the screenshot and DOM):', siteContext] : []),
   ].join('\n');
 }
@@ -308,6 +309,12 @@ chatRoute.post('/', async (c) => {
         const hasCompletionSignal = /\b(successfully|has been (complet|upgrad|submit|sav|sent|creat)|all set|you(?:'re| are) (?:now|all set)|fully accomplished)\b/i.test(text);
         const hasActionWord = /\b(click|tap|select|choose|type|enter|fill|navigate|go to|open|press|scroll)\b/i.test(text);
         if (noHighlight && hasCompletionSignal && !hasActionWord) {
+          canContinue = 'done';
+        }
+
+        // Off-topic / redirect detection — AI said it can't help → treat as done
+        const hasOffTopicSignal = /\b(only help|can(?:'t| not) help|not able to|outside|off.?topic|unrelated|not (related|relevant)|unclear|please (ask|rephrase|clarify)|try asking)\b/i.test(text);
+        if (noHighlight && hasOffTopicSignal && !hasActionWord) {
           canContinue = 'done';
         }
       }

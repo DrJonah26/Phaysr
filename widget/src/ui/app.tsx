@@ -294,7 +294,7 @@ export function App({ config, hostElement }: AppProps) {
         <div class="welcome-card">
           <p class="welcome-intro">
             <strong>👋 Welcome to the Phaysr demo!</strong><br />
-            Ask anything and watch Phaysr highlight the exact element on screen. Try one of these:
+            Ask anything and watch Phaysr guide you through the task step-by-step! Try one of these or come up with your own questions, feel free to explore!
           </p>
           <div class="welcome-chips">
             {SUGGESTIONS.map(s => (
