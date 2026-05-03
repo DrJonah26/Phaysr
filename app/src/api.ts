@@ -11,20 +11,29 @@ async function req<T>(path: string, init?: RequestInit): Promise<T> {
   return data as T;
 }
 
+type PublicUser = { id: string; email: string; subscriptionStatus: 'active' | 'inactive' };
+
 export const api = {
   auth: {
-    me: () => req<{ user: { id: string; email: string } | null }>('/auth/me'),
+    me: () => req<{ user: PublicUser | null }>('/auth/me'),
     signup: (email: string, password: string) =>
-      req<{ user: { id: string; email: string } }>('/auth/signup', {
+      req<{ user: PublicUser }>('/auth/signup', {
         method: 'POST',
         body: JSON.stringify({ email, password }),
       }),
     signin: (email: string, password: string) =>
-      req<{ user: { id: string; email: string } }>('/auth/signin', {
+      req<{ user: PublicUser }>('/auth/signin', {
         method: 'POST',
         body: JSON.stringify({ email, password }),
       }),
     signout: () => req<{ ok: boolean }>('/auth/signout', { method: 'POST' }),
+  },
+  billing: {
+    createCheckout: (projectId?: string) =>
+      req<{ url: string }>('/billing/checkout', {
+        method: 'POST',
+        body: JSON.stringify({ projectId }),
+      }),
   },
   projects: {
     list: () =>
@@ -49,6 +58,7 @@ export interface Project {
   color: string;
   context: string;
   contextUrl: string;
+  allowedDomain: string;
   createdAt: number;
   updatedAt: number;
 }
@@ -58,4 +68,5 @@ export interface ProjectInput {
   color: string;
   context?: string;
   contextUrl?: string;
+  allowedDomain?: string;
 }

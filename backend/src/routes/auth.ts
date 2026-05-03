@@ -16,7 +16,7 @@ import {
 export const authRoute = new Hono();
 
 function publicUser(u: UserRow) {
-  return { id: u.id, email: u.email };
+  return { id: u.id, email: u.email, subscriptionStatus: u.subscription_status };
 }
 
 function isEmail(s: string): boolean {

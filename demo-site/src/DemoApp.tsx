@@ -433,7 +433,7 @@ export function DemoApp() {
     script.src = '/widget.js';
     script.setAttribute('data-widget', 'ai-buddy');
     script.setAttribute('data-api-key', 'demo_local');
-    script.setAttribute('data-site-name', 'Meridian');
+    script.setAttribute('data-site-name', 'Acme');
     script.setAttribute('data-color', '#9C5959');
     script.setAttribute('data-backend-url', 'http://localhost:3000');
     script.setAttribute('data-context-url', 'http://localhost:5173/faq.txt');

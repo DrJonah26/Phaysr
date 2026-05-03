@@ -233,6 +233,16 @@ chatRoute.post('/', async (c) => {
   // If the widget sent an api_key, resolve project config server-side (source of truth).
   // Fall back to body-provided values if no matching project exists (local/demo mode).
   const project = body.api_key ? findProjectByApiKey(body.api_key) : null;
+
+  if (project?.allowed_domain) {
+    const origin = c.req.header('origin') ?? '';
+    const originHost = origin.replace(/^https?:\/\//, '').replace(/\/.*$/, '').toLowerCase();
+    const isLocalhost = originHost === 'localhost' || originHost.startsWith('localhost:') || originHost === '127.0.0.1';
+    if (!isLocalhost && originHost !== project.allowed_domain) {
+      return c.json({ error: 'domain_not_allowed' }, 403);
+    }
+  }
+
   const siteName = project?.site_name ?? body.site_name ?? 'this site';
   const siteContext = project?.context ?? body.site_context;
   const contextUrl = project?.context_url ?? body.context_url;

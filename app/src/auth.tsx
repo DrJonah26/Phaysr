@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { api } from './api';
 
-interface User { id: string; email: string; }
+interface User { id: string; email: string; subscriptionStatus: 'active' | 'inactive'; }
 
 interface AuthCtx {
   user: User | null;

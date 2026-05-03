@@ -12,6 +12,11 @@ function generateApiKey(): string {
   return 'phs_live_' + randomBytes(16).toString('hex');
 }
 
+function normalizeDomain(raw: string): string | null {
+  const s = raw.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+  return s || null;
+}
+
 function publicProject(p: ProjectRow) {
   return {
     id: p.id,
@@ -20,6 +25,7 @@ function publicProject(p: ProjectRow) {
     color: p.color,
     context: p.context ?? '',
     contextUrl: p.context_url ?? '',
+    allowedDomain: p.allowed_domain ?? '',
     createdAt: p.created_at,
     updatedAt: p.updated_at,
   };
@@ -35,7 +41,7 @@ projectsRoute.get('/', (c) => {
 
 projectsRoute.post('/', async (c) => {
   const user = c.get('user');
-  type Body = { siteName?: string; color?: string; context?: string; contextUrl?: string };
+  type Body = { siteName?: string; color?: string; context?: string; contextUrl?: string; allowedDomain?: string };
   const body = await c.req.json<Body>().catch(() => ({} as Body));
 
   const siteName = (body.siteName ?? '').trim();
@@ -44,15 +50,16 @@ projectsRoute.post('/', async (c) => {
   const color = (body.color ?? '#f05c2a').trim();
   const context = (body.context ?? '').trim() || null;
   const contextUrl = (body.contextUrl ?? '').trim() || null;
+  const allowedDomain = normalizeDomain(body.allowedDomain ?? '');
 
   const id = ulid();
   const apiKey = generateApiKey();
   const now = Date.now();
 
   db.prepare(
-    `INSERT INTO projects (id, user_id, api_key, site_name, color, context, context_url, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-  ).run(id, user.id, apiKey, siteName, color, context, contextUrl, now, now);
+    `INSERT INTO projects (id, user_id, api_key, site_name, color, context, context_url, allowed_domain, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+  ).run(id, user.id, apiKey, siteName, color, context, contextUrl, allowedDomain, now, now);
 
   const row = db.prepare('SELECT * FROM projects WHERE id = ?').get(id) as ProjectRow;
   return c.json({ project: publicProject(row) });
@@ -66,17 +73,18 @@ projectsRoute.patch('/:id', async (c) => {
     .get(id, user.id) as ProjectRow | undefined;
   if (!existing) return c.json({ error: 'not_found' }, 404);
 
-  type Body = { siteName?: string; color?: string; context?: string; contextUrl?: string };
+  type Body = { siteName?: string; color?: string; context?: string; contextUrl?: string; allowedDomain?: string };
   const body = await c.req.json<Body>().catch(() => ({} as Body));
 
   const siteName = body.siteName !== undefined ? body.siteName.trim() || existing.site_name : existing.site_name;
   const color = body.color !== undefined ? body.color.trim() || existing.color : existing.color;
   const context = body.context !== undefined ? (body.context.trim() || null) : existing.context;
   const contextUrl = body.contextUrl !== undefined ? (body.contextUrl.trim() || null) : existing.context_url;
+  const allowedDomain = body.allowedDomain !== undefined ? normalizeDomain(body.allowedDomain) : existing.allowed_domain;
 
   db.prepare(
-    `UPDATE projects SET site_name = ?, color = ?, context = ?, context_url = ?, updated_at = ? WHERE id = ?`,
-  ).run(siteName, color, context, contextUrl, Date.now(), id);
+    `UPDATE projects SET site_name = ?, color = ?, context = ?, context_url = ?, allowed_domain = ?, updated_at = ? WHERE id = ?`,
+  ).run(siteName, color, context, contextUrl, allowedDomain, Date.now(), id);
 
   const row = db.prepare('SELECT * FROM projects WHERE id = ?').get(id) as ProjectRow;
   return c.json({ project: publicProject(row) });

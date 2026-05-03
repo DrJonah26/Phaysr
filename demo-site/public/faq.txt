@@ -1,5 +1,5 @@
-## What is Meridian?
-Meridian is a project management tool that supports up to 500 projects per account. It lets teams organize tasks, track deadlines, and collaborate in real time.
+## What is Acme?
+Acme is a project management tool that supports up to 500 projects per account. It lets teams organize tasks, track deadlines, and collaborate in real time.
 
 ## How do I create a new project?
 Click the "+ New project" button on the top-right of the Dashboard page. A modal will open — enter a project name, choose a type (Software, Design, Marketing, or Research) and a priority (Low, Medium, High), then click "Create project".
@@ -11,7 +11,7 @@ Click "Team" in the left sidebar. Then click the "+ Invite member" button in the
 Click "Billing" in the left sidebar. Choose a plan (Pro at $29/mo or Enterprise at $99/mo) and click the Confirm button at the bottom. You can also reach Billing via Settings — click "Upgrade plan" in the Subscription section.
 
 ## How do I cancel my subscription?
-Meridian does not currently offer self-serve cancellation. Contact support@meridian.app to cancel your subscription.
+Acme does not currently offer self-serve cancellation. Contact support@acme.com to cancel your subscription.
 
 ## How many projects can I have?
 The Pro plan supports unlimited projects. The Free plan is limited to 3 active projects.
@@ -26,10 +26,10 @@ Click "Settings" in the left sidebar. You can update your full name, email addre
 Go to Settings in the left sidebar. Scroll to the Security section and click "Change Password".
 
 ## Is there a mobile app?
-Meridian is available as a web app and a mobile app for iOS and Android. Download it from the App Store or Google Play.
+Acme is available as a web app and a mobile app for iOS and Android. Download it from the App Store or Google Play.
 
 ## How do I contact support?
-Email support@meridian.app. The support team responds within 24 hours on business days.
+Email support@acme.com. The support team responds within 24 hours on business days.
 
-## What pages does Meridian have?
+## What pages does Acme have?
 The left sidebar has four pages: Dashboard (overview with stats and recent projects), Settings (profile and notifications), Billing (plan selection and invoices), and Team (member list and invites).

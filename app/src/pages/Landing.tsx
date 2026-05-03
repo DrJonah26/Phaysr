@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Code2, ScanEye, Crosshair,
-  Eye, ListOrdered, Zap, TrendingDown, ArrowUpRight,
+  Eye, ListOrdered, Zap, TrendingDown, ArrowUpRight, Check,
 } from 'lucide-react';
 import './landing.css';
 
@@ -31,9 +31,9 @@ export default function Landing() {
         <ul className="nav-links">
           <li><a href="#how">How it works</a></li>
           <li><a href="#features">Features</a></li>
-          <li><a href="#compare">vs. Alternatives</a></li>
+          <li><a href="#pricing">Pricing</a></li>
           <li><Link to="/signin" style={{ fontSize: 14, fontWeight: 500, color: 'var(--ink2)', textDecoration: 'none' }}>Sign in</Link></li>
-          <li><Link to="/signup" className="nav-cta">Sign up free</Link></li>
+          <li><Link to="/signup" className="nav-cta">Get started</Link></li>
         </ul>
       </nav>
 
@@ -46,7 +46,7 @@ export default function Landing() {
         <h1>The AI assistant that <em>sees</em> your product</h1>
         <p className="hero-sub">Paste one script tag and Phaysr is live. It guides your users step by step, pointing at the exact element they need right on screen. Like a human support agent, without the headcount.</p>
         <div className="hero-actions">
-          <Link to="/signup" className="btn-primary-land">Get started free →</Link>
+          <Link to="/signup" className="btn-primary-land">Get started →</Link>
           <Link to="/demo-site" className="btn-secondary-land">Try live demo →</Link>
         </div>
 
@@ -56,7 +56,7 @@ export default function Landing() {
             <div className="browser-bar">app.yourproduct.com</div>
           </div>
           <div className="video-container">
-            <video autoPlay loop muted playsInline src="/phyasrdemo2_edited.mp4" style={{ objectFit: 'cover', position: 'absolute', inset: 0, width: '100%', height: '100%' }} />
+            <video autoPlay loop muted playsInline src="/phaysr demo teracotta.mp4" style={{ objectFit: 'cover', position: 'absolute', inset: 0, width: '100%', height: '100%' }} />
           </div>
         </div>
       </section>
@@ -92,7 +92,7 @@ export default function Landing() {
               <div className="step-icon"><Code2 size={22} /></div>
               <h3>Paste one script tag</h3>
               <p>Drop a single line into your app's HTML. No SDKs, no build step, no config files. Phaysr is live immediately.</p>
-              <div className="step-code">{'<script\n  src="https://cdn.phaysr.ai/widget.js"\n  data-api-key="phs_live_YOUR_KEY"\n  data-site-name="MyApp"\n  data-color="#6366f1"\n  data-backend-url="https://api.phaysr.ai"\n  defer\n></script>'}</div>
+              <div className="step-code">{'<script\n  src="https://cdn.phaysr.com/widget.js"\n  data-api-key="phs_live_YOUR_KEY"\n  data-site-name="MyApp"\n  data-color="#6366f1"\n  data-backend-url="https://api.phaysr.com"\n  defer\n></script>'}</div>
             </div>
             <div className="step">
               <div className="step-num">Step 02</div>
@@ -132,51 +132,60 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* COMPARISON */}
-      <section id="compare">
+      {/* PRICING */}
+      <section id="pricing">
         <div className="inner">
-          <p className="section-label">vs. alternatives</p>
-          <h2>Why teams switch to Phaysr</h2>
-          <table className="compare-table">
-            <thead>
-              <tr>
-                <th></th>
-                <th className="phaysr-head">Phaysr</th>
-                <th>Intercom Tours</th>
-                <th>Pendo / Appcues</th>
-              </tr>
-            </thead>
-            <tbody>
+          <p className="section-label">Pricing</p>
+          <h2>One plan. Everything included.</h2>
+
+          <div className="pricing-card">
+            {/* Left: price */}
+            <div className="pricing-left">
+              <div className="pricing-price">
+                <span className="pricing-currency">€</span>49
+                <span className="pricing-period">/mo</span>
+              </div>
+              <Link to="/signup" className="btn-primary-land pricing-btn">Get started →</Link>
+              <p className="pricing-note">Cancel anytime.</p>
+            </div>
+
+            {/* Divider */}
+            <div className="pricing-divider" />
+
+            {/* Right: features */}
+            <ul className="pricing-features">
               {[
-                ['Setup time', <strong>One script tag</strong>, 'Days–weeks', 'Weeks–months'],
-                ['Survives UI changes', <span className="check">✓</span>, <span className="cross">✗</span>, <span className="cross">✗</span>],
-                ['Sees the live page visually', <span className="check">✓</span>, <span className="cross">✗</span>, <span className="cross">✗</span>],
-                ['Highlights exact UI element', <span className="check">✓</span>, <span className="partial">Tours only</span>, <span className="partial">Tours only</span>],
-                ['Guides multi-step tasks', <span className="check">✓</span>, <span className="partial">Scripted flows</span>, <span className="partial">Scripted flows</span>],
-                ['Price', <strong>Starts free</strong>, '$$$', '$$$$'],
-              ].map(([label, phaysr, col2, col3]) => (
-                <tr key={String(label)}>
-                  <td>{label}</td>
-                  <td className="phaysr-cell">{phaysr}</td>
-                  <td>{col2}</td>
-                  <td>{col3}</td>
-                </tr>
+                ['One script tag setup',          'Paste one line and the widget is live. No SDK, no build step.'],
+                ['Sees the live page',             'Reads the DOM + takes a screenshot on every question.'],
+                ['Pixel-perfect highlighting',     'Pulses an animated ring around the exact element the user needs.'],
+                ['Step-by-step guided flows',      'Walks users through multi-step tasks one instruction at a time.'],
+                ['Feed it your docs',              'Point it at your FAQ or docs URL for product-specific answers.'],
+                ['Unlimited questions & sessions', 'No per-message limits or usage caps.'],
+              ].map(([title, desc]) => (
+                <li key={title}>
+                  <span className="pricing-check"><Check size={13} /></span>
+                  <span>
+                    <strong>{title}</strong>
+                    <span className="pricing-feat-desc">{desc}</span>
+                  </span>
+                </li>
               ))}
-            </tbody>
-          </table>
+            </ul>
+          </div>
+
         </div>
       </section>
 
       {/* CTA */}
       <section id="cta">
         <p className="section-label">Get started</p>
-        <h2>Get started in only <em style={{ color: 'var(--accent)', fontStyle: 'normal' }}>60 seconds</em></h2>
+        <h2>Live in <em style={{ color: 'var(--accent)', fontStyle: 'normal' }}>60 seconds</em></h2>
         <p>Create an account, paste one script tag, and your users get an AI guide that reads the live page and walks them through anything step by step.</p>
         <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 16 }}>
-          <Link to="/signup" className="btn-primary-land" style={{ padding: '15px 34px' }}>Create your account →</Link>
+          <Link to="/signup" className="btn-primary-land" style={{ padding: '15px 34px' }}>Get started →</Link>
           <a href="/demo-site/" className="btn-secondary-land">See live demo</a>
         </div>
-        <p className="form-note">Free to start. No credit card required.</p>
+        <p className="form-note">€49/mo · Cancel anytime.</p>
       </section>
 
       {/* FOOTER */}

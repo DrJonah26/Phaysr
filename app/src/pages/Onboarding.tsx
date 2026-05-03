@@ -11,6 +11,7 @@ export default function Onboarding() {
 
   const [siteName, setSiteName] = useState('');
   const [color, setColor] = useState('#9C5959');
+  const [allowedDomain, setAllowedDomain] = useState('');
   const [tab, setTab] = useState<KnowledgeTab>('url');
   const [contextUrl, setContextUrl] = useState('');
   const [contextText, setContextText] = useState('');
@@ -38,6 +39,7 @@ export default function Onboarding() {
       const { project } = await api.projects.create({
         siteName: siteName.trim(),
         color,
+        allowedDomain: allowedDomain.trim() || undefined,
         context: tab === 'paste' ? contextText : undefined,
         contextUrl: tab === 'url' ? contextUrl : undefined,
       });
@@ -75,6 +77,16 @@ export default function Onboarding() {
                 value={siteName}
                 onChange={(e) => setSiteName(e.target.value)}
                 autoFocus
+              />
+            </div>
+
+            <div className="field">
+              <label>Your domain <span style={{ color: 'var(--ink2)', fontWeight: 400 }}>(only this domain can use your widget)</span></label>
+              <input
+                type="text"
+                placeholder="app.yourproduct.com"
+                value={allowedDomain}
+                onChange={(e) => setAllowedDomain(e.target.value)}
               />
             </div>
 

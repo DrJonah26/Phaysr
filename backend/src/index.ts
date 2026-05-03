@@ -6,6 +6,7 @@ import { chatRoute } from './routes/chat.js';
 import { ttsRoute } from './routes/tts.js';
 import { authRoute } from './routes/auth.js';
 import { projectsRoute } from './routes/projects.js';
+import { billingRoute } from './routes/billing.js';
 import './db.js';
 
 const app = new Hono();
@@ -33,6 +34,7 @@ app.get('/health', (c) => c.json({ ok: true }));
 
 app.route('/auth', authRoute);
 app.route('/projects', projectsRoute);
+app.route('/billing', billingRoute);
 app.route('/chat', chatRoute);
 app.route('/tts', ttsRoute);
 
