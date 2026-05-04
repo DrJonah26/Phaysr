@@ -35,7 +35,7 @@ interface AppProps {
 export function App({ config, hostElement }: AppProps) {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [showWelcome, setShowWelcome] = useState(true);
+  const [showWelcome, setShowWelcome] = useState(config.showWelcome);
 
   const SUGGESTIONS = [
     'How do I create a new project?',

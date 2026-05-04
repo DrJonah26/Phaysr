@@ -5,6 +5,7 @@ export interface WidgetConfig {
   backendUrl: string;
   context: string; // extra knowledge injected into system prompt (FAQ, docs, etc.)
   contextUrl?: string; // URL the backend fetches and RAG-retrieves from
+  showWelcome: boolean;
 }
 
 const DEFAULTS: WidgetConfig = {
@@ -13,6 +14,7 @@ const DEFAULTS: WidgetConfig = {
   color: '#9C5959',
   backendUrl: 'http://localhost:3000',
   context: '',
+  showWelcome: false,
 };
 
 export function readConfigFromScriptTag(): WidgetConfig {
@@ -30,5 +32,6 @@ export function readConfigFromScriptTag(): WidgetConfig {
     backendUrl: script.getAttribute('data-backend-url') ?? DEFAULTS.backendUrl,
     context: script.getAttribute('data-context') ?? DEFAULTS.context,
     contextUrl: script.getAttribute('data-context-url') ?? undefined,
+    showWelcome: script.getAttribute('data-show-welcome') === 'true',
   };
 }

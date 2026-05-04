@@ -34,7 +34,7 @@ export default function SignUp() {
   return (
     <div className="page">
       <div className="auth-card">
-        <a href="http://localhost:5173" className="auth-logo">Phays<span>r</span></a>
+        <a href="/" className="auth-logo">Phays<span>r</span></a>
         <h1 className="auth-title">Create your account</h1>
         <p className="auth-sub">Start for free — no credit card required</p>
 

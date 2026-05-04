@@ -32,7 +32,7 @@ export default function SignIn() {
   return (
     <div className="page">
       <div className="auth-card">
-        <a href="http://localhost:5173" className="auth-logo">Phays<span>r</span></a>
+        <a href="/" className="auth-logo">Phays<span>r</span></a>
         <h1 className="auth-title">Welcome back</h1>
         <p className="auth-sub">Sign in to your Phaysr account</p>
 

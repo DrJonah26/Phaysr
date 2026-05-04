@@ -13,6 +13,8 @@ export default function Embed() {
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [showAskClaude, setShowAskClaude] = useState(false);
+  const [copiedPrompt, setCopiedPrompt] = useState(false);
   const [activating, setActivating] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [subscriptionStatus, setSubscriptionStatus] = useState<'active' | 'inactive'>(
@@ -85,10 +87,18 @@ export default function Embed() {
     setTimeout(() => setCopied(false), 2500);
   }
 
+  const aiPrompt = `Hi!\n\nI want to add the Phaysr AI widget to my project. Here's the embed code for my account:\n\n${snippet}\n\nPlease help me add this to my project. Ask me what framework I'm using if you're not sure, then find the right file and add the script tag just before </body>.\n\nCommon entry points by framework:\n- Next.js App Router: app/layout.tsx\n- Next.js Pages Router: pages/_document.tsx\n- Vite / Create React App: index.html\n- SvelteKit: src/app.html\n- Nuxt: app.vue or layouts/default.vue\n- Remix: app/root.tsx\n- Astro: src/layouts/*.astro\n- Plain HTML: index.html\n\nAfter adding it, tell me how to verify the widget is working.`;
+
+  async function copyPrompt() {
+    await navigator.clipboard.writeText(aiPrompt);
+    setCopiedPrompt(true);
+    setTimeout(() => setCopiedPrompt(false), 2500);
+  }
+
   return (
     <>
       <nav className="app-nav">
-        <a href="http://localhost:5173" className="app-nav-logo">Phays<span>r</span></a>
+        <a href="/" className="app-nav-logo">Phays<span>r</span></a>
         <div className="app-nav-actions">
           <span style={{ fontSize: 14, color: 'var(--ink2)' }}>{user?.email}</span>
           <button className="btn-ghost" onClick={() => nav('/onboarding')} style={{ padding: '7px 14px', fontSize: 13 }}>+ New project</button>
@@ -152,6 +162,34 @@ export default function Embed() {
             )}
           </div>
 
+          {isActive && (
+            <div className="ask-claude-toggle">
+              <button
+                className="ask-claude-trigger"
+                onClick={() => setShowAskClaude(v => !v)}
+              >
+                <span className="ask-claude-trigger-left">
+                  Quick setup with AI
+                  <span className="ask-claude-info" onClick={e => e.stopPropagation()}>
+                    i
+                    <span className="ask-claude-info-tooltip">Copies a prompt pre-filled with your embed code. Open any AI tool, paste it in, and get walked through the setup step by step.</span>
+                  </span>
+                </span>
+                <span className={`ask-claude-chevron${showAskClaude ? ' open' : ''}`}>›</span>
+              </button>
+              {showAskClaude && (
+                <div className="ask-claude-panel">
+                  <div className="ask-claude-block">
+                    <button className={`copy-btn${copiedPrompt ? ' copied' : ''}`} onClick={copyPrompt}>
+                      {copiedPrompt ? '✓ Copied!' : 'Copy ↗'}
+                    </button>
+                    <pre className="ask-claude-prompt">{aiPrompt}</pre>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           <div className="embed-steps">
             <div className="embed-step">
               <div className="embed-step-num">Step 01</div>
@@ -181,7 +219,7 @@ export default function Embed() {
           {isActive && (
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
               <a
-                href={`http://localhost:5173?api_key=${project.apiKey}`}
+                href={`https://demo.phaysr.com?api_key=${project.apiKey}`}
                 className="btn-primary"
                 style={{ width: 'auto' }}
                 target="_blank"

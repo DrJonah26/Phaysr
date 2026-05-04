@@ -11,7 +11,7 @@ import './db.js';
 
 const app = new Hono();
 
-const allowed = (process.env.ALLOWED_ORIGINS ?? 'http://localhost:5173,http://localhost:5174')
+const allowed = (process.env.ALLOWED_ORIGINS ?? 'http://localhost:5173,http://localhost:5174,http://localhost:3001')
   .split(',')
   .map((s) => s.trim());
 
