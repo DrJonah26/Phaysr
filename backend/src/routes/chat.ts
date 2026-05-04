@@ -69,14 +69,14 @@ async function fetchUrlContext(url: string): Promise<CacheEntry | null> {
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
-    const res = await fetch(url, {
+    const res = await fetch(`https://r.jina.ai/${url}`, {
       signal: controller.signal,
-      headers: { 'User-Agent': 'Phaysr-Widget-Backend/1.0' },
+      headers: { 'User-Agent': 'Phaysr-Widget-Backend/1.0', 'Accept': 'text/plain' },
     });
     clearTimeout(timeout);
     if (!res.ok) return null;
     const raw = await res.text();
-    const content = raw.slice(0, 100_000);
+    const content = raw.slice(0, 60_000);
     const entry: CacheEntry = { content, chunks: chunkText(content), fetchedAt: Date.now() };
     URL_CONTEXT_CACHE.set(url, entry);
     return entry;
@@ -107,6 +107,7 @@ function buildSystemPrompt(siteName: string, siteContext?: string): string {
     '3. Currently filled form fields (if any)',
     '',
     'Rules:',
+    '- Always reply in the same language the user used in their question.',
     '- ONE step per answer. Max 2 sentences. No markdown. No em dashes.',
     '- Only reference selectors from the DOM list.',
     '- Always address the user directly with imperative instructions ("Click the Add button", "Type your name"). Never use first person ("I need to click...", "I will...").',
@@ -153,13 +154,13 @@ function buildUserContent(body: ChatRequestBody): Anthropic.ContentBlockParam[] 
   blocks.push({
     type: 'text',
     text: [
-      `Aktuelle URL: ${body.current_url}`,
-      `Seiten-Titel: ${body.page_title}`,
+      `Current URL: ${body.current_url}`,
+      `Page title: ${body.page_title}`,
       '',
-      'Sichtbare DOM-Elemente (JSON):',
+      'Visible DOM elements (JSON):',
       JSON.stringify(trimDomSnapshot(body.dom_snapshot), null, 2),
       '',
-      `Nutzer-Frage: ${body.question}`,
+      `User question: ${body.question}`,
     ].join('\n'),
   });
 
@@ -263,8 +264,22 @@ chatRoute.post('/', async (c) => {
     }
   }
 
-  const parts = [siteContext, ...urlChunks].filter(Boolean);
-  const mergedContext = parts.length > 0 ? parts.join('\n\n---\n\n') : undefined;
+  // RAG for pasted text: short text goes in as-is, long text gets chunked and filtered
+  const PASTE_RAG_THRESHOLD = 600;
+  let pasteChunks: string[];
+  if (!siteContext) {
+    pasteChunks = [];
+  } else if (siteContext.length < PASTE_RAG_THRESHOLD) {
+    pasteChunks = [siteContext];
+  } else {
+    pasteChunks = retrieveRelevantChunks(chunkText(siteContext), body.question, 3);
+  }
+
+  // Combined cap: max 3 chunks total across both sources
+  const allChunks = [...urlChunks, ...pasteChunks];
+  const cappedChunks = allChunks.slice(0, 3);
+
+  const mergedContext = cappedChunks.length > 0 ? cappedChunks.join('\n\n---\n\n') : undefined;
 
   const system = buildSystemPrompt(siteName, mergedContext);
 
