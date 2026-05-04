@@ -139,7 +139,15 @@ export function App({ config, hostElement }: AppProps) {
       });
 
       for await (const ev of stream) {
-        if (ev.type === 'text') {
+        if (ev.type === 'context_info') {
+          if (ev.fetched) {
+            console.groupCollapsed(`[Phaysr] context_url OK — ${ev.url} (${ev.retrievedChunks}/${ev.totalChunks} chunks used)`);
+            ev.chunks.forEach((chunk, i) => console.log(`Chunk ${i + 1}:\n${chunk}`));
+            console.groupEnd();
+          } else {
+            console.warn(`[Phaysr] context_url FAILED to fetch: ${ev.url}`);
+          }
+        } else if (ev.type === 'text') {
           assistantText += ev.delta;
           lastAssistantTextRef.current = assistantText;
           showGuideOutput({

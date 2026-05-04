@@ -101,7 +101,6 @@ export default function Embed() {
         <a href="/" className="app-nav-logo">Phays<span>r</span></a>
         <div className="app-nav-actions">
           <span style={{ fontSize: 14, color: 'var(--ink2)' }}>{user?.email}</span>
-          <button className="btn-ghost" onClick={() => nav('/onboarding')} style={{ padding: '7px 14px', fontSize: 13 }}>+ New project</button>
           <button className="btn-ghost" onClick={signout} style={{ padding: '7px 14px', fontSize: 13 }}>Sign out</button>
         </div>
       </nav>
@@ -218,15 +217,6 @@ export default function Embed() {
 
           {isActive && (
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-              <a
-                href={`https://demo.phaysr.com?api_key=${project.apiKey}`}
-                className="btn-primary"
-                style={{ width: 'auto' }}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Test on demo site →
-              </a>
               <button className="btn-ghost" onClick={() => nav('/onboarding')}>
                 Update configuration
               </button>

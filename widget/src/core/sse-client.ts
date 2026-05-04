@@ -3,6 +3,7 @@ export type ChatStreamEvent =
   | { type: 'highlight'; selector: string }
   | { type: 'can_continue'; value: 'yes' | 'no' | 'done' }
   | { type: 'advisor'; status: string }
+  | { type: 'context_info'; url: string; fetched: boolean; totalChunks: number; retrievedChunks: number; chunks: string[] }
   | { type: 'error'; message: string }
   | { type: 'done' };
 
@@ -82,6 +83,15 @@ function parseSSEBlock(block: string): ChatStreamEvent | null {
         return { type: 'error', message: parsed.message ?? 'unknown_error' };
       case 'can_continue':
         return { type: 'can_continue', value: parsed.value as 'yes' | 'no' | 'done' };
+      case 'context_info':
+        return {
+          type: 'context_info',
+          url: parsed.url ?? '',
+          fetched: parsed.fetched ?? false,
+          totalChunks: parsed.totalChunks ?? 0,
+          retrievedChunks: parsed.retrievedChunks ?? 0,
+          chunks: parsed.chunks ?? [],
+        };
       case 'done':
         return { type: 'done' };
       default:

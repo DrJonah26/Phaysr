@@ -249,6 +249,20 @@ chatRoute.post('/', async (c) => {
 
   const urlEntry = contextUrl ? await fetchUrlContext(contextUrl) : null;
   const urlChunks = urlEntry ? retrieveRelevantChunks(urlEntry.chunks, body.question) : [];
+
+  if (contextUrl) {
+    if (urlEntry) {
+      console.log(`[context_url] fetched ${contextUrl} — ${urlEntry.chunks.length} chunks total, ${urlChunks.length} relevant`);
+      if (urlChunks.length > 0) {
+        console.log('[context_url] retrieved chunks:\n' + urlChunks.map((c, i) => `  [${i + 1}] ${c.slice(0, 200)}`).join('\n'));
+      } else {
+        console.log('[context_url] no relevant chunks matched the question');
+      }
+    } else {
+      console.log(`[context_url] failed to fetch or parse: ${contextUrl}`);
+    }
+  }
+
   const parts = [siteContext, ...urlChunks].filter(Boolean);
   const mergedContext = parts.length > 0 ? parts.join('\n\n---\n\n') : undefined;
 
@@ -265,6 +279,20 @@ chatRoute.post('/', async (c) => {
   ];
 
   return streamSSE(c, async (stream) => {
+    // Emit debug info so the widget can log what context was used
+    if (contextUrl) {
+      await stream.writeSSE({
+        event: 'context_info',
+        data: JSON.stringify({
+          url: contextUrl,
+          fetched: !!urlEntry,
+          totalChunks: urlEntry?.chunks.length ?? 0,
+          retrievedChunks: urlChunks.length,
+          chunks: urlChunks,
+        }),
+      });
+    }
+
     let fullText = '';
 
     try {
