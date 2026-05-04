@@ -80,6 +80,12 @@ importers:
       hono:
         specifier: ^4.6.14
         version: 4.12.12
+      stripe:
+        specifier: ^22.1.0
+        version: 22.1.0(@types/node@22.19.17)
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
       ulid:
         specifier: ^3.0.2
         version: 3.0.2
@@ -96,9 +102,6 @@ importers:
       tsx:
         specifier: ^4.19.2
         version: 4.21.0
-      typescript:
-        specifier: ^5.7.2
-        version: 5.9.3
 
   demo-site:
     dependencies:
@@ -1965,6 +1968,15 @@ packages:
     resolution: {integrity: sha512-4gB8na07fecVVkOI6Rs4e7T6NOTki5EmL7TUduTs6bu3EdnSycntVJ4re8kgZA+wx9IueI2Y11bfbgwtzuE0KQ==}
     engines: {node: '>=0.10.0'}
 
+  stripe@22.1.0:
+    resolution: {integrity: sha512-w/xHyJGxXWnLPbNHG13sz/fae0MrFGC80Oz7YbICQymbfpqfEcsoG+6yG+9BWb81PWc4rrkeSO4wmTcmefmbLw==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      '@types/node': '>=18'
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
+
   tailwindcss@4.2.2:
     resolution: {integrity: sha512-KWBIxs1Xb6NoLdMVqhbhgwZf2PGBpPEiwOqgI4pFIYbNTfBXiKYyWoTsXgBQ9WFg/OlhnvHaY+AEpW7wSmFo2Q==}
 
@@ -3811,6 +3823,10 @@ snapshots:
       safe-buffer: 5.2.1
 
   strip-json-comments@2.0.1: {}
+
+  stripe@22.1.0(@types/node@22.19.17):
+    optionalDependencies:
+      '@types/node': 22.19.17
 
   tailwindcss@4.2.2: {}
 
