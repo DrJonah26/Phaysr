@@ -47,7 +47,7 @@ export default function Landing() {
         <p className="hero-sub">Paste one script tag and Phaysr is live. It guides your users step by step, pointing at the exact element they need right on screen. Like a human support agent, without the headcount.</p>
         <div className="hero-actions">
           <Link to="/signup" className="btn-primary-land">Get started →</Link>
-          <Link to="/demo-site" className="btn-secondary-land">Try live demo →</Link>
+          <a href="https://demo.phaysr.com" className="btn-secondary-land">Try live demo →</a>
         </div>
 
         <div className="hero-video-wrap">
@@ -183,7 +183,7 @@ export default function Landing() {
         <p>Create an account, paste one script tag, and your users get an AI guide that reads the live page and walks them through anything step by step.</p>
         <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 16 }}>
           <Link to="/signup" className="btn-primary-land" style={{ padding: '15px 34px' }}>Get started →</Link>
-          <a href="/demo-site/" className="btn-secondary-land">See live demo</a>
+          <a href="https://demo.phaysr.com" className="btn-secondary-land">See live demo</a>
         </div>
         <p className="form-note">€49/mo · Cancel anytime.</p>
       </section>
