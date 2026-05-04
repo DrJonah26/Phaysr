@@ -17,7 +17,7 @@ interface CacheEntry {
 const URL_CONTEXT_CACHE = new Map<string, CacheEntry>();
 const CACHE_TTL_MS = 60 * 60 * 1000;
 const CACHE_MAX_ENTRIES = 100;
-const FETCH_TIMEOUT_MS = 5_000;
+const FETCH_TIMEOUT_MS = 15_000;
 
 function chunkText(text: string): string[] {
   return text
@@ -248,7 +248,15 @@ chatRoute.post('/', async (c) => {
   const siteContext = project?.context ?? body.site_context;
   const contextUrl = project?.context_url ?? body.context_url;
 
-  const urlEntry = contextUrl ? await fetchUrlContext(contextUrl) : null;
+  // If URL is already cached, use it. If not, warm the cache in the background
+  // and proceed without URL context for this request to avoid blocking the user.
+  const cachedEntry = contextUrl ? URL_CONTEXT_CACHE.get(contextUrl) : null;
+  const urlEntry = cachedEntry && Date.now() - cachedEntry.fetchedAt < CACHE_TTL_MS
+    ? cachedEntry
+    : null;
+  if (contextUrl && !urlEntry) {
+    fetchUrlContext(contextUrl).catch(() => {});
+  }
   const urlChunks = urlEntry ? retrieveRelevantChunks(urlEntry.chunks, body.question) : [];
 
   if (contextUrl) {
