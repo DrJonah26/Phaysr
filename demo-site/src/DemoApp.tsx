@@ -435,8 +435,8 @@ export function DemoApp() {
     script.setAttribute('data-api-key', 'demo_local');
     script.setAttribute('data-site-name', 'Acme');
     script.setAttribute('data-color', '#9C5959');
-    script.setAttribute('data-backend-url', 'http://localhost:3000');
-    script.setAttribute('data-context-url', 'http://localhost:5173/faq.txt');
+    script.setAttribute('data-backend-url', 'https://api.phaysr.com');
+    script.setAttribute('data-context-url', 'https://demo.phaysr.com/faq.txt');
     script.setAttribute('data-show-welcome', 'true');
     script.defer = true;
     document.body.appendChild(script);
