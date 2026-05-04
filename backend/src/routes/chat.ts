@@ -6,18 +6,64 @@ import { findProjectByApiKey } from './projects.js';
 
 export const chatRoute = new Hono();
 
-// --- URL context cache ---
+// --- Jina Search cache (per url+question, 24h TTL) ---
 
-interface CacheEntry {
-  content: string;
-  chunks: string[];
-  fetchedAt: number;
+const SEARCH_CACHE = new Map<string, { result: string; fetchedAt: number }>();
+const SEARCH_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+const SEARCH_CACHE_MAX = 500;
+const SEARCH_TIMEOUT_MS = 10_000;
+const SEARCH_RESULT_MAX_CHARS = 6_000; // ~1500 tokens
+
+async function searchSiteContext(siteUrl: string, question: string): Promise<string | null> {
+  let parsed: URL;
+  try { parsed = new URL(siteUrl); } catch { return null; }
+  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return null;
+
+  const domain = `${parsed.protocol}//${parsed.hostname}`;
+  const cacheKey = `${domain}::${question}`;
+
+  const now = Date.now();
+  for (const [key, entry] of SEARCH_CACHE) {
+    if (now - entry.fetchedAt > SEARCH_CACHE_TTL_MS) SEARCH_CACHE.delete(key);
+  }
+
+  const cached = SEARCH_CACHE.get(cacheKey);
+  if (cached) return cached.result;
+
+  if (SEARCH_CACHE.size >= SEARCH_CACHE_MAX) {
+    const oldest = [...SEARCH_CACHE.entries()].reduce((a, b) =>
+      a[1].fetchedAt < b[1].fetchedAt ? a : b
+    );
+    SEARCH_CACHE.delete(oldest[0]);
+  }
+
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), SEARCH_TIMEOUT_MS);
+    const res = await fetch(`https://s.jina.ai/${encodeURIComponent(question)}`, {
+      signal: controller.signal,
+      headers: {
+        'Accept': 'text/plain',
+        'X-Site': domain,
+        'User-Agent': 'Phaysr-Widget-Backend/1.0',
+      },
+    });
+    clearTimeout(timeout);
+    if (!res.ok) return null;
+    const text = await res.text();
+    const result = text.slice(0, SEARCH_RESULT_MAX_CHARS);
+    SEARCH_CACHE.set(cacheKey, { result, fetchedAt: Date.now() });
+    return result;
+  } catch {
+    return null;
+  }
 }
 
-const URL_CONTEXT_CACHE = new Map<string, CacheEntry>();
-const CACHE_TTL_MS = 60 * 60 * 1000;
-const CACHE_MAX_ENTRIES = 100;
-const FETCH_TIMEOUT_MS = 15_000;
+// Paste text RAG — still needed for the pasted-context path
+const STOPWORDS = new Set([
+  'the','a','an','is','it','in','to','i','my','how','do','can',
+  'what','where','when','why','does','did','be','are','was','have','has',
+]);
 
 function chunkText(text: string): string[] {
   return text
@@ -25,11 +71,6 @@ function chunkText(text: string): string[] {
     .map(s => s.trim())
     .filter(s => s.length > 30);
 }
-
-const STOPWORDS = new Set([
-  'the','a','an','is','it','in','to','i','my','how','do','can',
-  'what','where','when','why','does','did','be','are','was','have','has',
-]);
 
 function scoreChunk(chunk: string, words: string[]): number {
   const lower = chunk.toLowerCase();
@@ -46,46 +87,7 @@ function retrieveRelevantChunks(chunks: string[], question: string, topK = 3): s
     .map(s => s.chunk);
 }
 
-async function fetchUrlContext(url: string): Promise<CacheEntry | null> {
-  let parsed: URL;
-  try { parsed = new URL(url); } catch { return null; }
-  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return null;
-
-  const now = Date.now();
-  for (const [key, entry] of URL_CONTEXT_CACHE) {
-    if (now - entry.fetchedAt > CACHE_TTL_MS) URL_CONTEXT_CACHE.delete(key);
-  }
-
-  const cached = URL_CONTEXT_CACHE.get(url);
-  if (cached && now - cached.fetchedAt < CACHE_TTL_MS) return cached;
-
-  if (URL_CONTEXT_CACHE.size >= CACHE_MAX_ENTRIES) {
-    const oldest = [...URL_CONTEXT_CACHE.entries()].reduce((a, b) =>
-      a[1].fetchedAt < b[1].fetchedAt ? a : b
-    );
-    URL_CONTEXT_CACHE.delete(oldest[0]);
-  }
-
-  try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
-    const res = await fetch(`https://r.jina.ai/${url}`, {
-      signal: controller.signal,
-      headers: { 'User-Agent': 'Phaysr-Widget-Backend/1.0', 'Accept': 'text/plain' },
-    });
-    clearTimeout(timeout);
-    if (!res.ok) return null;
-    const raw = await res.text();
-    const content = raw.slice(0, 60_000);
-    const entry: CacheEntry = { content, chunks: chunkText(content), fetchedAt: Date.now() };
-    URL_CONTEXT_CACHE.set(url, entry);
-    return entry;
-  } catch {
-    return null;
-  }
-}
-
-// --- End URL context cache ---
+// --- End context helpers ---
 
 const EXECUTOR_MODEL = 'claude-haiku-4-5-20251001';
 const ADVISOR_MODEL = 'claude-opus-4-6';
@@ -248,28 +250,12 @@ chatRoute.post('/', async (c) => {
   const siteContext = project?.context ?? body.site_context;
   const contextUrl = project?.context_url ?? body.context_url;
 
-  // If URL is already cached, use it. If not, warm the cache in the background
-  // and proceed without URL context for this request to avoid blocking the user.
-  const cachedEntry = contextUrl ? URL_CONTEXT_CACHE.get(contextUrl) : null;
-  const urlEntry = cachedEntry && Date.now() - cachedEntry.fetchedAt < CACHE_TTL_MS
-    ? cachedEntry
-    : null;
-  if (contextUrl && !urlEntry) {
-    fetchUrlContext(contextUrl).catch(() => {});
-  }
-  const urlChunks = urlEntry ? retrieveRelevantChunks(urlEntry.chunks, body.question) : [];
-
+  // Jina Search: semantic search across the entire domain, cached per (url+question)
+  const urlContext = contextUrl ? await searchSiteContext(contextUrl, body.question) : null;
   if (contextUrl) {
-    if (urlEntry) {
-      console.log(`[context_url] fetched ${contextUrl} — ${urlEntry.chunks.length} chunks total, ${urlChunks.length} relevant`);
-      if (urlChunks.length > 0) {
-        console.log('[context_url] retrieved chunks:\n' + urlChunks.map((c, i) => `  [${i + 1}] ${c.slice(0, 200)}`).join('\n'));
-      } else {
-        console.log('[context_url] no relevant chunks matched the question');
-      }
-    } else {
-      console.log(`[context_url] failed to fetch or parse: ${contextUrl}`);
-    }
+    console.log(urlContext
+      ? `[context_url] search OK — ${urlContext.length} chars`
+      : `[context_url] search failed: ${contextUrl}`);
   }
 
   // RAG for pasted text: short text goes in as-is, long text gets chunked and filtered
@@ -280,14 +266,11 @@ chatRoute.post('/', async (c) => {
   } else if (siteContext.length < PASTE_RAG_THRESHOLD) {
     pasteChunks = [siteContext];
   } else {
-    pasteChunks = retrieveRelevantChunks(chunkText(siteContext), body.question, 3);
+    pasteChunks = retrieveRelevantChunks(chunkText(siteContext), body.question, 2);
   }
 
-  // Combined cap: max 3 chunks total across both sources
-  const allChunks = [...urlChunks, ...pasteChunks];
-  const cappedChunks = allChunks.slice(0, 3);
-
-  const mergedContext = cappedChunks.length > 0 ? cappedChunks.join('\n\n---\n\n') : undefined;
+  const parts = [urlContext, ...pasteChunks].filter(Boolean) as string[];
+  const mergedContext = parts.length > 0 ? parts.join('\n\n---\n\n') : undefined;
 
   const system = buildSystemPrompt(siteName, mergedContext);
 
@@ -308,10 +291,8 @@ chatRoute.post('/', async (c) => {
         event: 'context_info',
         data: JSON.stringify({
           url: contextUrl,
-          fetched: !!urlEntry,
-          totalChunks: urlEntry?.chunks.length ?? 0,
-          retrievedChunks: urlChunks.length,
-          chunks: urlChunks,
+          fetched: !!urlContext,
+          chars: urlContext?.length ?? 0,
         }),
       });
     }
