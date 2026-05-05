@@ -444,6 +444,14 @@ export function DemoApp() {
 
   return (
     <div className="demo-root">
+      <div className="dm-banner">
+        <span className="dm-banner-text">This is the demo of Phaysr</span>
+        <a href="https://phaysr.com" className="dm-banner-cta" target="_blank" rel="noopener noreferrer">
+          Get started
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+      <div className="dm-shell">
       <aside className="dm-sidebar">
         <div className="dm-logo">
           <div className="dm-logo-icon">A</div>
@@ -481,6 +489,7 @@ export function DemoApp() {
           {page === 'team'      && <Team />}
         </div>
       </main>
+      </div>
     </div>
   );
 }
