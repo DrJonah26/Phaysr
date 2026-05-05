@@ -11,6 +11,7 @@ import {
   collapseGuideOutput,
 } from '../core/highlighter.js';
 import { streamChat } from '../core/sse-client.js';
+import { showCursorSpinner, hideCursorSpinner } from '../core/cursor-spinner.js';
 
 const MAX_CONTINUE_STEPS = 6;
 
@@ -284,7 +285,16 @@ export function App({ config, hostElement }: AppProps) {
   useEffect(() => () => {
     clearHighlights();
     hideGuideOutput();
+    hideCursorSpinner();
   }, []);
+
+  useEffect(() => {
+    if (isLoading) {
+      showCursorSpinner(config.color);
+    } else {
+      hideCursorSpinner();
+    }
+  }, [isLoading, config.color]);
 
   const handleSuggestion = useCallback((text: string) => {
     if (isLoadingRef.current) return;
