@@ -149,8 +149,43 @@ function ensureGuideOutput() {
     continueHandler?.();
   });
 
+  const closeBtn = document.createElement('button');
+  closeBtn.type = 'button';
+  closeBtn.textContent = '×';
+  closeBtn.style.position = 'absolute';
+  closeBtn.style.top = '6px';
+  closeBtn.style.right = '8px';
+  closeBtn.style.left = 'auto';
+  closeBtn.style.width = '16px';
+  closeBtn.style.height = '16px';
+  closeBtn.style.border = 'none';
+  closeBtn.style.background = 'transparent';
+  closeBtn.style.cursor = 'pointer';
+  closeBtn.style.fontSize = '14px';
+  closeBtn.style.lineHeight = '1';
+  closeBtn.style.color = '#333333';
+  closeBtn.style.opacity = '0';
+  closeBtn.style.transition = 'opacity 0.15s ease';
+  closeBtn.style.padding = '0';
+  closeBtn.style.display = 'flex';
+  closeBtn.style.alignItems = 'center';
+  closeBtn.style.justifyContent = 'center';
+  closeBtn.style.borderRadius = '3px';
+  closeBtn.addEventListener('click', () => {
+    hideGuideOutput();
+    clearHighlights();
+    (persistedCursorEl ?? document.getElementById(CURSOR_ID))?.remove();
+    persistedCursorEl = null;
+    lastCursorPos = null;
+    document.querySelectorAll(`.${RING_CLASS}`).forEach((ringEl) => ringEl.remove());
+  });
+
+  el.addEventListener('mouseenter', () => { closeBtn.style.opacity = '1'; });
+  el.addEventListener('mouseleave', () => { closeBtn.style.opacity = '0'; });
+
   footer.appendChild(meta);
   footer.appendChild(button);
+  el.appendChild(closeBtn);
   el.appendChild(text);
   el.appendChild(footer);
   document.body.appendChild(el);
