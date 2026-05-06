@@ -39,11 +39,7 @@ export default function Landing() {
 
       {/* HERO */}
       <section id="hero">
-        <div className="hero-badge">
-          <span className="hero-badge-dot" />
-          One script tag. Zero setup. Live today.
-        </div>
-        <h1>The AI assistant that <em>sees</em> your product</h1>
+<h1>The AI assistant that <em>sees</em> your product</h1>
         <p className="hero-sub">Paste one script tag and Phaysr is live. It guides your users step by step, pointing at the exact element they need right on screen. Like a human support agent, without the headcount.</p>
         <div className="hero-actions">
           <Link to="/signup" className="btn-primary-land">Get started →</Link>
