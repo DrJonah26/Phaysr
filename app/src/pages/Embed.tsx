@@ -133,7 +133,7 @@ export default function Embed() {
             <div className="trial-banner">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
               <span>
-                Free trial: <strong>{trialDaysLeft} {trialDaysLeft === 1 ? 'day' : 'days'} left</strong>, then $49/mo to keep access.
+                Free trial: <strong>{trialDaysLeft} {trialDaysLeft === 1 ? 'day' : 'days'} left</strong>, then $29/mo to keep access.
               </span>
               <button className="btn-ghost trial-upgrade-btn" onClick={handleActivate} disabled={checkoutLoading}>
                 {checkoutLoading ? 'Redirecting…' : 'Upgrade now'}
@@ -176,7 +176,7 @@ export default function Embed() {
                     <div className="paywall-lock">
                       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                     </div>
-                    <p className="paywall-price">$49<span>/mo</span></p>
+                    <p className="paywall-price">$29<span>/mo</span></p>
                     <button className="btn-primary paywall-btn" onClick={handleActivate} disabled={checkoutLoading}>
                       {checkoutLoading && <span className="spinner" />}
                       {checkoutLoading ? 'Redirecting…' : 'Activate Phaysr →'}

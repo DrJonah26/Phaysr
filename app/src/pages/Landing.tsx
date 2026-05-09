@@ -49,7 +49,7 @@ export default function Landing() {
           <Link to="/signup" className="btn-primary-land">Start free trial →</Link>
           <a href="https://demo.phaysr.com" className="btn-secondary-land">Try live demo →</a>
         </div>
-        <p style={{ fontSize: 13, color: 'var(--ink2)', marginTop: -44, marginBottom: 60, opacity: 0.75 }}>7 days free, then $49/mo. Cancel anytime.</p>
+        <p style={{ fontSize: 13, color: 'var(--ink2)', marginTop: -44, marginBottom: 60, opacity: 0.75 }}>7 days free, then $29/mo. Cancel anytime.</p>
 
         <div className="hero-video-wrap">
           <div className="browser-chrome">
@@ -146,7 +146,7 @@ export default function Landing() {
               <div className="pricing-price">
                 <span className="pricing-currency">$</span>0
               </div>
-              <div className="pricing-then">then $49/mo</div>
+              <div className="pricing-then">then $29/mo</div>
               <Link to="/signup" className="btn-primary-land pricing-btn">Start free trial →</Link>
               <p className="pricing-note">No credit card required. Cancel anytime.</p>
             </div>
@@ -187,7 +187,7 @@ export default function Landing() {
           <Link to="/signup" className="btn-primary-land" style={{ padding: '15px 34px' }}>Start free trial →</Link>
           <a href="https://demo.phaysr.com" className="btn-secondary-land">See live demo</a>
         </div>
-        <p className="form-note">7 days free, no credit card required. Then $49/mo, cancel anytime.</p>
+        <p className="form-note">7 days free, no credit card required. Then $29/mo, cancel anytime.</p>
       </section>
 
       {/* FOOTER */}
