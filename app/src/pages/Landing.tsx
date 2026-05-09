@@ -39,10 +39,7 @@ export default function Landing() {
 
       {/* HERO */}
       <section id="hero">
-        <div className="hero-badge">
-          <span className="hero-badge-dot" />
-          7-day free trial. No credit card required.
-        </div>
+
 <h1>The AI assistant that <em>sees</em> your product</h1>
         <p className="hero-sub">Paste one script tag and Phaysr is live. It guides your users step by step, pointing at the exact element they need right on screen. Like a human support agent, without the headcount.</p>
         <div className="hero-actions">
