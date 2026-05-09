@@ -491,6 +491,39 @@ body {
   color: #16a34a;
 }
 
+.trial-expired-banner {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 20px;
+  background: rgba(220,38,38,0.07);
+  border: 1px solid rgba(220,38,38,0.25);
+  border-radius: 10px;
+  margin-bottom: 28px;
+  font-size: 14px; font-weight: 500;
+  color: #991b1b;
+}
+.trial-expired-banner svg { flex-shrink: 0; }
+
+.trial-banner {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 20px;
+  background: rgba(156,89,89,0.07);
+  border: 1px solid rgba(156,89,89,0.25);
+  border-radius: 10px;
+  margin-bottom: 28px;
+  font-size: 14px;
+  color: #7a3d3d;
+}
+.trial-banner svg { flex-shrink: 0; }
+.trial-banner span { flex: 1; }
+.trial-upgrade-btn {
+  padding: 6px 14px !important;
+  font-size: 13px !important;
+  border: 1px solid rgba(156,89,89,0.4) !important;
+  color: #7a3d3d !important;
+  white-space: nowrap;
+}
+.trial-upgrade-btn:hover { background: rgba(156,89,89,0.1) !important; }
+
 /* ── GLOBAL ERROR ── */
 .alert {
   padding: 12px 16px;

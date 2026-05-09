@@ -33,18 +33,23 @@ export default function Landing() {
           <li><a href="#features">Features</a></li>
           <li><a href="#pricing">Pricing</a></li>
           <li><Link to="/signin" style={{ fontSize: 14, fontWeight: 500, color: 'var(--ink2)', textDecoration: 'none' }}>Sign in</Link></li>
-          <li><Link to="/signup" className="nav-cta">Get started</Link></li>
+          <li><Link to="/signup" className="nav-cta">Start free trial</Link></li>
         </ul>
       </nav>
 
       {/* HERO */}
       <section id="hero">
+        <div className="hero-badge">
+          <span className="hero-badge-dot" />
+          7-day free trial. No credit card required.
+        </div>
 <h1>The AI assistant that <em>sees</em> your product</h1>
         <p className="hero-sub">Paste one script tag and Phaysr is live. It guides your users step by step, pointing at the exact element they need right on screen. Like a human support agent, without the headcount.</p>
         <div className="hero-actions">
-          <Link to="/signup" className="btn-primary-land">Get started →</Link>
+          <Link to="/signup" className="btn-primary-land">Start free trial →</Link>
           <a href="https://demo.phaysr.com" className="btn-secondary-land">Try live demo →</a>
         </div>
+        <p style={{ fontSize: 13, color: 'var(--ink2)', marginTop: -44, marginBottom: 60, opacity: 0.75 }}>7 days free, then $49/mo. Cancel anytime.</p>
 
         <div className="hero-video-wrap">
           <div className="browser-chrome">
@@ -137,12 +142,13 @@ export default function Landing() {
           <div className="pricing-card">
             {/* Left: price */}
             <div className="pricing-left">
+              <div className="pricing-trial-label">7 days free</div>
               <div className="pricing-price">
-                <span className="pricing-currency">€</span>49
-                <span className="pricing-period">/mo</span>
+                <span className="pricing-currency">$</span>0
               </div>
-              <Link to="/signup" className="btn-primary-land pricing-btn">Get started →</Link>
-              <p className="pricing-note">Cancel anytime.</p>
+              <div className="pricing-then">then $49/mo</div>
+              <Link to="/signup" className="btn-primary-land pricing-btn">Start free trial →</Link>
+              <p className="pricing-note">No credit card required. Cancel anytime.</p>
             </div>
 
             {/* Divider */}
@@ -175,13 +181,13 @@ export default function Landing() {
       {/* CTA */}
       <section id="cta">
         <p className="section-label">Get started</p>
-        <h2>Live in <em style={{ color: 'var(--accent)', fontStyle: 'normal' }}>60 seconds</em></h2>
+        <h2>7 days free. Live in <em style={{ color: 'var(--accent)', fontStyle: 'normal' }}>60 seconds</em></h2>
         <p>Create an account, paste one script tag, and your users get an AI guide that reads the live page and walks them through anything step by step.</p>
         <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 16 }}>
-          <Link to="/signup" className="btn-primary-land" style={{ padding: '15px 34px' }}>Get started →</Link>
+          <Link to="/signup" className="btn-primary-land" style={{ padding: '15px 34px' }}>Start free trial →</Link>
           <a href="https://demo.phaysr.com" className="btn-secondary-land">See live demo</a>
         </div>
-        <p className="form-note">€49/mo · Cancel anytime.</p>
+        <p className="form-note">7 days free, no credit card required. Then $49/mo, cancel anytime.</p>
       </section>
 
       {/* FOOTER */}

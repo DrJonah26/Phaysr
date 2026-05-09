@@ -16,7 +16,12 @@ import {
 export const authRoute = new Hono();
 
 function publicUser(u: UserRow) {
-  return { id: u.id, email: u.email, subscriptionStatus: u.subscription_status };
+  return {
+    id: u.id,
+    email: u.email,
+    subscriptionStatus: u.subscription_status,
+    trialStartedAt: u.trial_started_at,
+  };
 }
 
 function isEmail(s: string): boolean {
@@ -38,14 +43,15 @@ authRoute.post('/signup', async (c) => {
 
   const id = ulid();
   const hash = await hashPassword(password);
+  const now = Date.now();
   db.prepare(
-    'INSERT INTO users (id, email, password_hash, created_at) VALUES (?, ?, ?, ?)',
-  ).run(id, email, hash, Date.now());
+    'INSERT INTO users (id, email, password_hash, created_at, subscription_status, trial_started_at) VALUES (?, ?, ?, ?, ?, ?)',
+  ).run(id, email, hash, now, 'trial', now);
 
   const token = createSession(id);
   setSessionCookie(c, token);
 
-  return c.json({ user: { id, email } });
+  return c.json({ user: publicUser({ id, email, password_hash: hash, created_at: now, subscription_status: 'trial', trial_started_at: now }) });
 });
 
 authRoute.post('/signin', async (c) => {

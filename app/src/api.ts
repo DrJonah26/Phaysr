@@ -11,7 +11,7 @@ async function req<T>(path: string, init?: RequestInit): Promise<T> {
   return data as T;
 }
 
-type PublicUser = { id: string; email: string; subscriptionStatus: 'active' | 'inactive' };
+type PublicUser = { id: string; email: string; subscriptionStatus: 'active' | 'trial' | 'inactive'; trialStartedAt: number | null };
 
 export const api = {
   auth: {

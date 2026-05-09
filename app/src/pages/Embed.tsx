@@ -17,9 +17,10 @@ export default function Embed() {
   const [copiedPrompt, setCopiedPrompt] = useState(false);
   const [activating, setActivating] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
-  const [subscriptionStatus, setSubscriptionStatus] = useState<'active' | 'inactive'>(
-    user?.subscriptionStatus ?? 'inactive'
+  const [subscriptionStatus, setSubscriptionStatus] = useState<'active' | 'trial' | 'inactive'>(
+    user?.subscriptionStatus ?? 'trial'
   );
+  const [trialStartedAt, setTrialStartedAt] = useState<number | null>(user?.trialStartedAt ?? null);
 
   useEffect(() => {
     api.projects.list().then(({ projects }) => {
@@ -51,6 +52,7 @@ export default function Embed() {
         const { user: u } = await api.auth.me();
         if (u?.subscriptionStatus === 'active') {
           setSubscriptionStatus('active');
+          setTrialStartedAt(u.trialStartedAt);
           setActivating(false);
           clearInterval(poll);
         }
@@ -77,7 +79,13 @@ export default function Embed() {
 
   if (loading || !project) return null;
 
-  const isActive = subscriptionStatus === 'active';
+  const TRIAL_MS = 7 * 24 * 60 * 60 * 1000;
+  const trialDaysLeft = trialStartedAt
+    ? Math.max(0, Math.ceil((trialStartedAt + TRIAL_MS - Date.now()) / (24 * 60 * 60 * 1000)))
+    : 0;
+  const isTrialActive = subscriptionStatus === 'trial' && trialDaysLeft > 0;
+  const isTrialExpired = subscriptionStatus === 'trial' && trialDaysLeft === 0;
+  const isActive = subscriptionStatus === 'active' || isTrialActive;
 
   const snippet = `<script\n  src="${WIDGET_SRC}"\n  data-api-key="${project.apiKey}"\n  data-site-name="${project.siteName}"\n  data-color="${project.color}"\n  data-backend-url="${BACKEND_URL}"\n  defer\n></script>`;
 
@@ -107,10 +115,29 @@ export default function Embed() {
 
       <div className="embed-wrap">
         <div className="embed-card">
-          {isActive && (
+          {subscriptionStatus === 'active' && (
             <div className="success-banner">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
               Widget configured for <strong style={{ marginLeft: 4 }}>{project.siteName}</strong>
+            </div>
+          )}
+
+          {isTrialExpired && (
+            <div className="trial-expired-banner">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <span>Your free trial has expired. Upgrade to reactivate your widget.</span>
+            </div>
+          )}
+
+          {isTrialActive && (
+            <div className="trial-banner">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <span>
+                Free trial: <strong>{trialDaysLeft} {trialDaysLeft === 1 ? 'day' : 'days'} left</strong>, then $49/mo to keep access.
+              </span>
+              <button className="btn-ghost trial-upgrade-btn" onClick={handleActivate} disabled={checkoutLoading}>
+                {checkoutLoading ? 'Redirecting…' : 'Upgrade now'}
+              </button>
             </div>
           )}
 
@@ -149,7 +176,7 @@ export default function Embed() {
                     <div className="paywall-lock">
                       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                     </div>
-                    <p className="paywall-price">€49<span>/mo</span></p>
+                    <p className="paywall-price">$49<span>/mo</span></p>
                     <button className="btn-primary paywall-btn" onClick={handleActivate} disabled={checkoutLoading}>
                       {checkoutLoading && <span className="spinner" />}
                       {checkoutLoading ? 'Redirecting…' : 'Activate Phaysr →'}

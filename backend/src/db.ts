@@ -15,7 +15,8 @@ CREATE TABLE IF NOT EXISTS users (
   email               TEXT UNIQUE NOT NULL,
   password_hash       TEXT NOT NULL,
   created_at          INTEGER NOT NULL,
-  subscription_status TEXT NOT NULL DEFAULT 'inactive'
+  subscription_status TEXT NOT NULL DEFAULT 'trial',
+  trial_started_at    INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS sessions (
@@ -43,6 +44,7 @@ CREATE INDEX IF NOT EXISTS idx_projects_api_key ON projects(api_key);
 
 // Migrations for existing DBs
 try { db.exec(`ALTER TABLE users ADD COLUMN subscription_status TEXT NOT NULL DEFAULT 'inactive'`); } catch { /* exists */ }
+try { db.exec(`ALTER TABLE users ADD COLUMN trial_started_at INTEGER`); } catch { /* exists */ }
 try { db.exec(`ALTER TABLE projects ADD COLUMN allowed_domain TEXT`); } catch { /* exists */ }
 
 export interface UserRow {
@@ -50,7 +52,8 @@ export interface UserRow {
   email: string;
   password_hash: string;
   created_at: number;
-  subscription_status: 'active' | 'inactive';
+  subscription_status: 'active' | 'trial' | 'inactive';
+  trial_started_at: number | null;
 }
 
 export interface ProjectRow {

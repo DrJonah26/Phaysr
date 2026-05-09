@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
+import { bodyLimit } from 'hono/body-limit';
 import { serve } from '@hono/node-server';
 import { chatRoute } from './routes/chat.js';
 import { ttsRoute } from './routes/tts.js';
@@ -35,6 +36,8 @@ app.get('/health', (c) => c.json({ ok: true }));
 app.route('/auth', authRoute);
 app.route('/projects', projectsRoute);
 app.route('/billing', billingRoute);
+// 2 MB limit covers a 0.5x-scaled JPEG screenshot plus payload headroom
+app.use('/chat', bodyLimit({ maxSize: 2 * 1024 * 1024 }));
 app.route('/chat', chatRoute);
 app.route('/tts', ttsRoute);
 

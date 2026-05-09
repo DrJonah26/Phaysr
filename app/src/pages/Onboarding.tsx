@@ -73,7 +73,7 @@ export default function Onboarding() {
               <label>Website / product name</label>
               <input
                 type="text"
-                placeholder="e.g. Acme, TaskFlow, BillingPro"
+                placeholder="Your product name"
                 value={siteName}
                 onChange={(e) => setSiteName(e.target.value)}
                 autoFocus

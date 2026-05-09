@@ -232,15 +232,22 @@
   padding: 52px 48px; display: flex; flex-direction: column;
   align-items: flex-start; flex-shrink: 0; min-width: 260px;
 }
+.pricing-trial-label {
+  font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 8px;
+}
 .pricing-price {
   font-family: var(--serif); font-size: 80px; line-height: 1;
   letter-spacing: -0.04em; color: var(--ink);
-  display: flex; align-items: flex-start; gap: 2px; margin-bottom: 32px;
+  display: flex; align-items: flex-start; gap: 2px; margin-bottom: 4px;
 }
-.pricing-currency { font-size: 34px; margin-top: 14px; color: var(--ink2); }
+.pricing-currency { font-size: 34px; margin-top: 14px; margin-right: 6px; color: var(--ink2); }
 .pricing-period {
   font-size: 20px; font-weight: 400; align-self: flex-end;
   margin-bottom: 12px; color: var(--ink2); font-family: var(--sans);
+}
+.pricing-then {
+  font-size: 15px; color: var(--ink2); margin-bottom: 28px; font-weight: 400;
 }
 .pricing-btn { white-space: nowrap; width: auto; padding: 13px 28px; font-size: 15px; }
 .pricing-note { margin-top: 14px; font-size: 13px; color: var(--ink2); opacity: .7; }

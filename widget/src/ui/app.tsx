@@ -164,7 +164,11 @@ export function App({ config, hostElement }: AppProps) {
           aiCanContinue = ev.value;
         } else if (ev.type === 'error') {
           hadError = true;
-          assistantText = assistantText || `Fehler: ${ev.message}`;
+          assistantText = assistantText || (
+            ev.message === 'trial_expired'
+              ? 'Your free trial has ended. Please upgrade at phaysr.com to continue.'
+              : `Error: ${ev.message}`
+          );
           lastAssistantTextRef.current = assistantText;
           showGuideOutput({
             text: assistantText,

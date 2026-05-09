@@ -2,6 +2,8 @@ import { Hono } from 'hono';
 import { streamSSE } from 'hono/streaming';
 import Anthropic from '@anthropic-ai/sdk';
 import type { ChatRequestBody, DOMElementSnapshot } from '../types.js';
+import { db } from '../db.js';
+import type { UserRow } from '../db.js';
 import { findProjectByApiKey } from './projects.js';
 
 export const chatRoute = new Hono();
@@ -233,9 +235,26 @@ chatRoute.post('/', async (c) => {
 
   const client = new Anthropic({ apiKey });
 
-  // If the widget sent an api_key, resolve project config server-side (source of truth).
-  // Fall back to body-provided values if no matching project exists (local/demo mode).
+  // Resolve project from api_key. Allow the configured demo key through without a project.
+  const DEMO_KEY = process.env.DEMO_API_KEY;
+  const isDemo = DEMO_KEY && body.api_key === DEMO_KEY;
+
   const project = body.api_key ? findProjectByApiKey(body.api_key) : null;
+
+  if (!project && !isDemo) {
+    return c.json({ error: 'invalid_api_key' }, 401);
+  }
+
+  if (project) {
+    const projectUser = db.prepare('SELECT * FROM users WHERE id = ?').get(project.user_id) as UserRow | undefined;
+    if (projectUser && projectUser.subscription_status !== 'active') {
+      const TRIAL_MS = 7 * 24 * 60 * 60 * 1000;
+      const trialExpired = !projectUser.trial_started_at || Date.now() - projectUser.trial_started_at > TRIAL_MS;
+      if (trialExpired) {
+        return c.json({ error: 'trial_expired' }, 402);
+      }
+    }
+  }
 
   if (project?.allowed_domain) {
     const origin = c.req.header('origin') ?? '';
@@ -246,9 +265,11 @@ chatRoute.post('/', async (c) => {
     }
   }
 
-  const siteName = project?.site_name ?? body.site_name ?? 'this site';
-  const siteContext = project?.context ?? body.site_context;
-  const contextUrl = project?.context_url ?? body.context_url;
+  // Never trust client-supplied site name/context — only use values from the DB project.
+  // Demo mode gets a fixed name and no context to prevent prompt injection.
+  const siteName = project?.site_name ?? 'Demo';
+  const siteContext = project?.context;
+  const contextUrl = project?.context_url;
 
   // Jina Search: semantic search across the entire domain, cached per (url+question)
   const urlContext = contextUrl ? await searchSiteContext(contextUrl, body.question) : null;
@@ -370,9 +391,8 @@ chatRoute.post('/', async (c) => {
       await stream.writeSSE({ event: 'can_continue', data: JSON.stringify({ value: canContinue }) }); // 'yes' | 'no' | 'done'
       await stream.writeSSE({ event: 'done', data: '{}' });
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'unknown_error';
-      console.error('chat stream error:', message);
-      await stream.writeSSE({ event: 'error', data: JSON.stringify({ message }) });
+      console.error('chat stream error:', err instanceof Error ? err.message : err);
+      await stream.writeSSE({ event: 'error', data: JSON.stringify({ message: 'api_error' }) });
     }
   });
 });
