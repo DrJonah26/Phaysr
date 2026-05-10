@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS projects (
   context        TEXT,
   context_url    TEXT,
   allowed_domain TEXT,
+  allowed_paths  TEXT,
   created_at     INTEGER NOT NULL,
   updated_at     INTEGER NOT NULL
 );
@@ -46,6 +47,7 @@ CREATE INDEX IF NOT EXISTS idx_projects_api_key ON projects(api_key);
 try { db.exec(`ALTER TABLE users ADD COLUMN subscription_status TEXT NOT NULL DEFAULT 'inactive'`); } catch { /* exists */ }
 try { db.exec(`ALTER TABLE users ADD COLUMN trial_started_at INTEGER`); } catch { /* exists */ }
 try { db.exec(`ALTER TABLE projects ADD COLUMN allowed_domain TEXT`); } catch { /* exists */ }
+try { db.exec(`ALTER TABLE projects ADD COLUMN allowed_paths TEXT`); } catch { /* exists */ }
 
 export interface UserRow {
   id: string;
@@ -65,6 +67,7 @@ export interface ProjectRow {
   context: string | null;
   context_url: string | null;
   allowed_domain: string | null;
+  allowed_paths: string | null;
   created_at: number;
   updated_at: number;
 }

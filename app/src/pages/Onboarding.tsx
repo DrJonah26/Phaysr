@@ -12,6 +12,7 @@ export default function Onboarding() {
   const [siteName, setSiteName] = useState('');
   const [color, setColor] = useState('#9C5959');
   const [allowedDomain, setAllowedDomain] = useState('');
+  const [allowedPaths, setAllowedPaths] = useState('');
   const [tab, setTab] = useState<KnowledgeTab>('url');
   const [contextUrl, setContextUrl] = useState('');
   const [contextText, setContextText] = useState('');
@@ -40,6 +41,7 @@ export default function Onboarding() {
         siteName: siteName.trim(),
         color,
         allowedDomain: allowedDomain.trim() || undefined,
+        allowedPaths: allowedPaths.trim() || undefined,
         context: tab === 'paste' ? contextText : undefined,
         contextUrl: tab === 'url' ? contextUrl : undefined,
       });
@@ -88,6 +90,17 @@ export default function Onboarding() {
                 value={allowedDomain}
                 onChange={(e) => setAllowedDomain(e.target.value)}
               />
+            </div>
+
+            <div className="field">
+              <label>App pages <span style={{ color: 'var(--ink2)', fontWeight: 400 }}>(optional — widget only appears on these paths)</span></label>
+              <input
+                type="text"
+                placeholder="/app, /dashboard, /settings"
+                value={allowedPaths}
+                onChange={(e) => setAllowedPaths(e.target.value)}
+              />
+              <p style={{ margin: '6px 0 0', fontSize: 13, color: 'var(--ink2)' }}>Leave empty to show on all pages. Prefix matching: /app also matches /app/settings.</p>
             </div>
 
             <div className="field">

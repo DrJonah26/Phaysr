@@ -26,6 +26,7 @@ function publicProject(p: ProjectRow) {
     context: p.context ?? '',
     contextUrl: p.context_url ?? '',
     allowedDomain: p.allowed_domain ?? '',
+    allowedPaths: p.allowed_paths ?? '',
     createdAt: p.created_at,
     updatedAt: p.updated_at,
   };
@@ -41,7 +42,7 @@ projectsRoute.get('/', (c) => {
 
 projectsRoute.post('/', async (c) => {
   const user = c.get('user');
-  type Body = { siteName?: string; color?: string; context?: string; contextUrl?: string; allowedDomain?: string };
+  type Body = { siteName?: string; color?: string; context?: string; contextUrl?: string; allowedDomain?: string; allowedPaths?: string };
   const body = await c.req.json<Body>().catch(() => ({} as Body));
 
   const siteName = (body.siteName ?? '').trim();
@@ -51,15 +52,16 @@ projectsRoute.post('/', async (c) => {
   const context = (body.context ?? '').trim() || null;
   const contextUrl = (body.contextUrl ?? '').trim() || null;
   const allowedDomain = normalizeDomain(body.allowedDomain ?? '');
+  const allowedPaths = (body.allowedPaths ?? '').trim() || null;
 
   const id = ulid();
   const apiKey = generateApiKey();
   const now = Date.now();
 
   db.prepare(
-    `INSERT INTO projects (id, user_id, api_key, site_name, color, context, context_url, allowed_domain, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-  ).run(id, user.id, apiKey, siteName, color, context, contextUrl, allowedDomain, now, now);
+    `INSERT INTO projects (id, user_id, api_key, site_name, color, context, context_url, allowed_domain, allowed_paths, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+  ).run(id, user.id, apiKey, siteName, color, context, contextUrl, allowedDomain, allowedPaths, now, now);
 
   const row = db.prepare('SELECT * FROM projects WHERE id = ?').get(id) as ProjectRow;
   return c.json({ project: publicProject(row) });
@@ -73,7 +75,7 @@ projectsRoute.patch('/:id', async (c) => {
     .get(id, user.id) as ProjectRow | undefined;
   if (!existing) return c.json({ error: 'not_found' }, 404);
 
-  type Body = { siteName?: string; color?: string; context?: string; contextUrl?: string; allowedDomain?: string };
+  type Body = { siteName?: string; color?: string; context?: string; contextUrl?: string; allowedDomain?: string; allowedPaths?: string };
   const body = await c.req.json<Body>().catch(() => ({} as Body));
 
   const siteName = body.siteName !== undefined ? body.siteName.trim() || existing.site_name : existing.site_name;
@@ -81,10 +83,11 @@ projectsRoute.patch('/:id', async (c) => {
   const context = body.context !== undefined ? (body.context.trim() || null) : existing.context;
   const contextUrl = body.contextUrl !== undefined ? (body.contextUrl.trim() || null) : existing.context_url;
   const allowedDomain = body.allowedDomain !== undefined ? normalizeDomain(body.allowedDomain) : existing.allowed_domain;
+  const allowedPaths = body.allowedPaths !== undefined ? (body.allowedPaths.trim() || null) : existing.allowed_paths;
 
   db.prepare(
-    `UPDATE projects SET site_name = ?, color = ?, context = ?, context_url = ?, allowed_domain = ?, updated_at = ? WHERE id = ?`,
-  ).run(siteName, color, context, contextUrl, allowedDomain, Date.now(), id);
+    `UPDATE projects SET site_name = ?, color = ?, context = ?, context_url = ?, allowed_domain = ?, allowed_paths = ?, updated_at = ? WHERE id = ?`,
+  ).run(siteName, color, context, contextUrl, allowedDomain, allowedPaths, Date.now(), id);
 
   const row = db.prepare('SELECT * FROM projects WHERE id = ?').get(id) as ProjectRow;
   return c.json({ project: publicProject(row) });

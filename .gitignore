@@ -8,3 +8,4 @@ dist
 backend/data/
 # Added by code-review-graph
 .code-review-graph/
+*.md

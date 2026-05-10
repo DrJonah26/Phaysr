@@ -5,10 +5,18 @@ import { getWidgetStyles } from './ui/styles.js';
 
 const HOST_ID = '__web_widget_host__';
 
+function pathAllowed(allowedPaths: string[]): boolean {
+  if (allowedPaths.length === 0) return true;
+  const current = window.location.pathname;
+  return allowedPaths.some((p) => current === p || current.startsWith(p.endsWith('/') ? p : p + '/'));
+}
+
 function init() {
   if (document.getElementById(HOST_ID)) return;
 
   const config = readConfigFromScriptTag();
+
+  if (!pathAllowed(config.allowedPaths)) return;
 
   const host = document.createElement('div');
   host.id = HOST_ID;

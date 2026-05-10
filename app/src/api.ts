@@ -59,6 +59,7 @@ export interface Project {
   context: string;
   contextUrl: string;
   allowedDomain: string;
+  allowedPaths: string;
   createdAt: number;
   updatedAt: number;
 }
@@ -69,4 +70,5 @@ export interface ProjectInput {
   context?: string;
   contextUrl?: string;
   allowedDomain?: string;
+  allowedPaths?: string;
 }

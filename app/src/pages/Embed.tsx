@@ -87,7 +87,8 @@ export default function Embed() {
   const isTrialExpired = subscriptionStatus === 'trial' && trialDaysLeft === 0;
   const isActive = subscriptionStatus === 'active' || isTrialActive;
 
-  const snippet = `<script\n  src="${WIDGET_SRC}"\n  data-api-key="${project.apiKey}"\n  data-site-name="${project.siteName}"\n  data-color="${project.color}"\n  data-backend-url="${BACKEND_URL}"\n  defer\n></script>`;
+  const allowedPathsAttr = project.allowedPaths ? `\n  data-allowed-paths="${project.allowedPaths}"` : '';
+  const snippet = `<script\n  src="${WIDGET_SRC}"\n  data-api-key="${project.apiKey}"\n  data-site-name="${project.siteName}"\n  data-color="${project.color}"\n  data-backend-url="${BACKEND_URL}"${allowedPathsAttr}\n  defer\n></script>`;
 
   async function copy() {
     await navigator.clipboard.writeText(snippet);
@@ -159,6 +160,7 @@ export default function Embed() {
                 {'  '}<span className="attr">data-site-name</span>=<span className="val">"{project.siteName}"</span>{'\n'}
                 {'  '}<span className="attr">data-color</span>=<span className="val">"{project.color}"</span>{'\n'}
                 {'  '}<span className="attr">data-backend-url</span>=<span className="val">"{BACKEND_URL}"</span>{'\n'}
+                {project.allowedPaths && <>{'  '}<span className="attr">data-allowed-paths</span>=<span className="val">"{project.allowedPaths}"</span>{'\n'}</>}
                 {'  '}<span className="kw">defer</span>{'\n'}
                 <span className="kw">{'></script>'}</span>
               </pre>

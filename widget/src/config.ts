@@ -6,6 +6,7 @@ export interface WidgetConfig {
   context: string; // extra knowledge injected into system prompt (FAQ, docs, etc.)
   contextUrl?: string; // URL the backend fetches and RAG-retrieves from
   showWelcome: boolean;
+  allowedPaths: string[]; // if non-empty, widget only initializes on matching path prefixes
 }
 
 const DEFAULTS: WidgetConfig = {
@@ -15,6 +16,7 @@ const DEFAULTS: WidgetConfig = {
   backendUrl: 'http://localhost:3000',
   context: '',
   showWelcome: false,
+  allowedPaths: [],
 };
 
 export function readConfigFromScriptTag(): WidgetConfig {
@@ -33,5 +35,9 @@ export function readConfigFromScriptTag(): WidgetConfig {
     context: script.getAttribute('data-context') ?? DEFAULTS.context,
     contextUrl: script.getAttribute('data-context-url') ?? undefined,
     showWelcome: script.getAttribute('data-show-welcome') === 'true',
+    allowedPaths: (script.getAttribute('data-allowed-paths') ?? '')
+      .split(',')
+      .map((p) => p.trim())
+      .filter(Boolean),
   };
 }
