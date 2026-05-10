@@ -51,7 +51,7 @@ authRoute.post('/signup', async (c) => {
   const token = createSession(id);
   setSessionCookie(c, token);
 
-  return c.json({ user: publicUser({ id, email, password_hash: hash, created_at: now, subscription_status: 'trial', trial_started_at: now }) });
+  return c.json({ user: publicUser({ id, email, password_hash: hash, created_at: now, subscription_status: 'trial', trial_started_at: now, stripe_customer_id: null }) });
 });
 
 authRoute.post('/signin', async (c) => {
