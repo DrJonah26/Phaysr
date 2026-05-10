@@ -54,7 +54,7 @@ export default function Landing() {
             <div className="browser-bar">app.yourproduct.com</div>
           </div>
           <div className="video-container">
-            <video autoPlay loop muted playsInline src="/phaysr demo teracotta.mp4" style={{ objectFit: 'cover', position: 'absolute', inset: 0, width: '100%', height: '100%' }} />
+            <video autoPlay loop muted playsInline src="/phaysr demo teracotta sped up.mp4" style={{ objectFit: 'cover', position: 'absolute', inset: 0, width: '100%', height: '100%' }} />
           </div>
         </div>
       </section>
