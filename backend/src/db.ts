@@ -48,6 +48,7 @@ try { db.exec(`ALTER TABLE users ADD COLUMN subscription_status TEXT NOT NULL DE
 try { db.exec(`ALTER TABLE users ADD COLUMN trial_started_at INTEGER`); } catch { /* exists */ }
 try { db.exec(`ALTER TABLE projects ADD COLUMN allowed_domain TEXT`); } catch { /* exists */ }
 try { db.exec(`ALTER TABLE projects ADD COLUMN allowed_paths TEXT`); } catch { /* exists */ }
+try { db.exec(`ALTER TABLE users ADD COLUMN stripe_customer_id TEXT`); } catch { /* exists */ }
 
 export interface UserRow {
   id: string;
@@ -56,6 +57,7 @@ export interface UserRow {
   created_at: number;
   subscription_status: 'active' | 'trial' | 'inactive';
   trial_started_at: number | null;
+  stripe_customer_id: string | null;
 }
 
 export interface ProjectRow {

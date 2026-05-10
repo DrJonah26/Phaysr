@@ -36,7 +36,7 @@ export default function SignUp() {
       <div className="auth-card">
         <a href="/" className="auth-logo">Phays<span>r</span></a>
         <h1 className="auth-title">Create your account</h1>
-        <p className="auth-sub">Start for free — no credit card required</p>
+        <p className="auth-sub">Start for free, no credit card required</p>
 
         {error && <div className="alert alert-error">{error}</div>}
 

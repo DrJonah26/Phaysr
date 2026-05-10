@@ -17,6 +17,7 @@ export default function Embed() {
   const [copiedPrompt, setCopiedPrompt] = useState(false);
   const [activating, setActivating] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [portalLoading, setPortalLoading] = useState(false);
   const [subscriptionStatus, setSubscriptionStatus] = useState<'active' | 'trial' | 'inactive'>(
     user?.subscriptionStatus ?? 'trial'
   );
@@ -65,6 +66,16 @@ export default function Embed() {
 
     return () => clearInterval(poll);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handlePortal = useCallback(async () => {
+    setPortalLoading(true);
+    try {
+      const { url } = await api.billing.createPortal();
+      window.location.href = url;
+    } catch {
+      setPortalLoading(false);
+    }
+  }, []);
 
   const handleActivate = useCallback(async () => {
     if (!project) return;
@@ -249,6 +260,11 @@ export default function Embed() {
               <button className="btn-ghost" onClick={() => nav('/onboarding')}>
                 Update configuration
               </button>
+              {subscriptionStatus === 'active' && (
+                <button className="btn-ghost" onClick={handlePortal} disabled={portalLoading}>
+                  {portalLoading ? 'Redirecting…' : 'Manage subscription'}
+                </button>
+              )}
             </div>
           )}
         </div>

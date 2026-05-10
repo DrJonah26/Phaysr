@@ -34,6 +34,8 @@ export const api = {
         method: 'POST',
         body: JSON.stringify({ projectId }),
       }),
+    createPortal: () =>
+      req<{ url: string }>('/billing/portal', { method: 'POST' }),
   },
   projects: {
     list: () =>

@@ -28,6 +28,28 @@ billingRoute.post('/checkout', requireAuth, async (c) => {
   return c.json({ url: session.url });
 });
 
+billingRoute.post('/portal', requireAuth, async (c) => {
+  const user = c.get('user');
+  const appUrl = (process.env.APP_URL ?? 'http://localhost:5173').replace(/\/$/, '');
+
+  let customerId = user.stripe_customer_id;
+  if (!customerId) {
+    const customers = await stripe.customers.list({ email: user.email, limit: 1 });
+    customerId = customers.data[0]?.id ?? null;
+  }
+
+  if (!customerId) {
+    return c.json({ error: 'no_customer' }, 404);
+  }
+
+  const session = await stripe.billingPortal.sessions.create({
+    customer: customerId,
+    return_url: `${appUrl}/embed`,
+  });
+
+  return c.json({ url: session.url });
+});
+
 billingRoute.post('/webhook', async (c) => {
   const sig = c.req.header('stripe-signature') ?? '';
   const body = await c.req.text();
@@ -42,8 +64,9 @@ billingRoute.post('/webhook', async (c) => {
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session;
     const userId = session.metadata?.userId;
+    const customerId = session.customer as string | null;
     if (userId) {
-      db.prepare("UPDATE users SET subscription_status = 'active' WHERE id = ?").run(userId);
+      db.prepare("UPDATE users SET subscription_status = 'active', stripe_customer_id = COALESCE(?, stripe_customer_id) WHERE id = ?").run(customerId, userId);
     }
   }
 
