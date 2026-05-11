@@ -235,9 +235,8 @@ chatRoute.post('/', async (c) => {
 
   const client = new Anthropic({ apiKey });
 
-  // Resolve project from api_key. Allow the configured demo key through without a project.
-  const DEMO_KEY = process.env.DEMO_API_KEY;
-  const isDemo = DEMO_KEY && body.api_key === DEMO_KEY;
+  // Resolve project from api_key. Allow the hardcoded demo key through without a project.
+  const isDemo = body.api_key === 'demo_local';
 
   const project = body.api_key ? findProjectByApiKey(body.api_key) : null;
 
