@@ -15,7 +15,8 @@
       "mcp__code-review-graph__get_architecture_overview_tool",
       "Bash(npm install *)",
       "Skill(update-config)",
-      "Skill(update-config:*)"
+      "Skill(update-config:*)",
+      "mcp__claude_ai_Supabase__get_cost"
     ]
   },
   "enableAllProjectMcpServers": true,

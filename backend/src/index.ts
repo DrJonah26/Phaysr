@@ -8,7 +8,6 @@ import { ttsRoute } from './routes/tts.js';
 import { authRoute } from './routes/auth.js';
 import { projectsRoute } from './routes/projects.js';
 import { billingRoute } from './routes/billing.js';
-import './db.js';
 
 const app = new Hono();
 

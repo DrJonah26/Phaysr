@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import { ulid } from 'ulid';
 import { randomBytes } from 'node:crypto';
-import { db, type ProjectRow, type UserRow } from '../db.js';
+import { supabase, type ProjectRow, type UserRow } from '../db.js';
 import { requireAuth } from '../auth.js';
 
 export const projectsRoute = new Hono<{ Variables: { user: UserRow } }>();
@@ -32,12 +32,14 @@ function publicProject(p: ProjectRow) {
   };
 }
 
-projectsRoute.get('/', (c) => {
+projectsRoute.get('/', async (c) => {
   const user = c.get('user');
-  const rows = db
-    .prepare('SELECT * FROM projects WHERE user_id = ? ORDER BY created_at DESC')
-    .all(user.id) as ProjectRow[];
-  return c.json({ projects: rows.map(publicProject) });
+  const { data: rows } = await supabase
+    .from('projects')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false });
+  return c.json({ projects: (rows ?? []).map(publicProject) });
 });
 
 projectsRoute.post('/', async (c) => {
@@ -58,21 +60,33 @@ projectsRoute.post('/', async (c) => {
   const apiKey = generateApiKey();
   const now = Date.now();
 
-  db.prepare(
-    `INSERT INTO projects (id, user_id, api_key, site_name, color, context, context_url, allowed_domain, allowed_paths, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-  ).run(id, user.id, apiKey, siteName, color, context, contextUrl, allowedDomain, allowedPaths, now, now);
+  await supabase.from('projects').insert({
+    id,
+    user_id: user.id,
+    api_key: apiKey,
+    site_name: siteName,
+    color,
+    context,
+    context_url: contextUrl,
+    allowed_domain: allowedDomain,
+    allowed_paths: allowedPaths,
+    created_at: now,
+    updated_at: now,
+  });
 
-  const row = db.prepare('SELECT * FROM projects WHERE id = ?').get(id) as ProjectRow;
-  return c.json({ project: publicProject(row) });
+  const { data: row } = await supabase.from('projects').select('*').eq('id', id).single();
+  return c.json({ project: publicProject(row as ProjectRow) });
 });
 
 projectsRoute.patch('/:id', async (c) => {
   const user = c.get('user');
   const id = c.req.param('id');
-  const existing = db
-    .prepare('SELECT * FROM projects WHERE id = ? AND user_id = ?')
-    .get(id, user.id) as ProjectRow | undefined;
+  const { data: existing } = await supabase
+    .from('projects')
+    .select('*')
+    .eq('id', id)
+    .eq('user_id', user.id)
+    .single();
   if (!existing) return c.json({ error: 'not_found' }, 404);
 
   type Body = { siteName?: string; color?: string; context?: string; contextUrl?: string; allowedDomain?: string; allowedPaths?: string };
@@ -85,17 +99,21 @@ projectsRoute.patch('/:id', async (c) => {
   const allowedDomain = body.allowedDomain !== undefined ? normalizeDomain(body.allowedDomain) : existing.allowed_domain;
   const allowedPaths = body.allowedPaths !== undefined ? (body.allowedPaths.trim() || null) : existing.allowed_paths;
 
-  db.prepare(
-    `UPDATE projects SET site_name = ?, color = ?, context = ?, context_url = ?, allowed_domain = ?, allowed_paths = ?, updated_at = ? WHERE id = ?`,
-  ).run(siteName, color, context, contextUrl, allowedDomain, allowedPaths, Date.now(), id);
+  await supabase.from('projects').update({
+    site_name: siteName,
+    color,
+    context,
+    context_url: contextUrl,
+    allowed_domain: allowedDomain,
+    allowed_paths: allowedPaths,
+    updated_at: Date.now(),
+  }).eq('id', id);
 
-  const row = db.prepare('SELECT * FROM projects WHERE id = ?').get(id) as ProjectRow;
-  return c.json({ project: publicProject(row) });
+  const { data: row } = await supabase.from('projects').select('*').eq('id', id).single();
+  return c.json({ project: publicProject(row as ProjectRow) });
 });
 
-export function findProjectByApiKey(apiKey: string): ProjectRow | null {
-  const row = db.prepare('SELECT * FROM projects WHERE api_key = ?').get(apiKey) as
-    | ProjectRow
-    | undefined;
-  return row ?? null;
+export async function findProjectByApiKey(apiKey: string): Promise<ProjectRow | null> {
+  const { data } = await supabase.from('projects').select('*').eq('api_key', apiKey).single();
+  return (data as ProjectRow) ?? null;
 }

@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import { streamSSE } from 'hono/streaming';
 import Anthropic from '@anthropic-ai/sdk';
 import type { ChatRequestBody, DOMElementSnapshot } from '../types.js';
-import { db } from '../db.js';
+import { supabase } from '../db.js';
 import type { UserRow } from '../db.js';
 import { findProjectByApiKey } from './projects.js';
 
@@ -238,17 +238,17 @@ chatRoute.post('/', async (c) => {
   // Resolve project from api_key. Allow the hardcoded demo key through without a project.
   const isDemo = body.api_key === 'demo_local';
 
-  const project = body.api_key ? findProjectByApiKey(body.api_key) : null;
+  const project = body.api_key ? await findProjectByApiKey(body.api_key) : null;
 
   if (!project && !isDemo) {
     return c.json({ error: 'invalid_api_key' }, 401);
   }
 
   if (project) {
-    const projectUser = db.prepare('SELECT * FROM users WHERE id = ?').get(project.user_id) as UserRow | undefined;
-    if (projectUser && projectUser.subscription_status !== 'active') {
+    const { data: projectUser } = await supabase.from('users').select('*').eq('id', project.user_id).single();
+    if (projectUser && (projectUser as UserRow).subscription_status !== 'active') {
       const TRIAL_MS = 7 * 24 * 60 * 60 * 1000;
-      const trialExpired = !projectUser.trial_started_at || Date.now() - projectUser.trial_started_at > TRIAL_MS;
+      const trialExpired = !(projectUser as UserRow).trial_started_at || Date.now() - (projectUser as UserRow).trial_started_at! > TRIAL_MS;
       if (trialExpired) {
         return c.json({ error: 'trial_expired' }, 402);
       }

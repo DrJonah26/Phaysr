@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import Stripe from 'stripe';
-import { db, type UserRow } from '../db.js';
+import { supabase, type UserRow } from '../db.js';
 import { requireAuth } from '../auth.js';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? '');
@@ -66,7 +66,10 @@ billingRoute.post('/webhook', async (c) => {
     const userId = session.metadata?.userId;
     const customerId = session.customer as string | null;
     if (userId) {
-      db.prepare("UPDATE users SET subscription_status = 'active', stripe_customer_id = COALESCE(?, stripe_customer_id) WHERE id = ?").run(customerId, userId);
+      await supabase.from('users').update({
+        subscription_status: 'active',
+        ...(customerId ? { stripe_customer_id: customerId } : {}),
+      }).eq('id', userId);
     }
   }
 
@@ -75,7 +78,7 @@ billingRoute.post('/webhook', async (c) => {
     const customerId = sub.customer as string;
     const customer = await stripe.customers.retrieve(customerId);
     if (!customer.deleted && customer.email) {
-      db.prepare("UPDATE users SET subscription_status = 'inactive' WHERE email = ?").run(customer.email);
+      await supabase.from('users').update({ subscription_status: 'inactive' }).eq('email', customer.email);
     }
   }
 

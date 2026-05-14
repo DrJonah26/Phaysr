@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs';
 import { randomBytes } from 'node:crypto';
 import type { Context, MiddlewareHandler } from 'hono';
 import { getCookie, setCookie, deleteCookie } from 'hono/cookie';
-import { db, type UserRow } from './db.js';
+import { supabase, type UserRow } from './db.js';
 
 const SESSION_COOKIE = 'phaysr_sid';
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
@@ -15,19 +15,15 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
   return bcrypt.compare(password, hash);
 }
 
-export function createSession(userId: string): string {
+export async function createSession(userId: string): Promise<string> {
   const token = randomBytes(32).toString('hex');
   const expiresAt = Date.now() + SESSION_TTL_MS;
-  db.prepare('INSERT INTO sessions (token, user_id, expires_at) VALUES (?, ?, ?)').run(
-    token,
-    userId,
-    expiresAt,
-  );
+  await supabase.from('sessions').insert({ token, user_id: userId, expires_at: expiresAt });
   return token;
 }
 
-export function destroySession(token: string): void {
-  db.prepare('DELETE FROM sessions WHERE token = ?').run(token);
+export async function destroySession(token: string): Promise<void> {
+  await supabase.from('sessions').delete().eq('token', token);
 }
 
 export function setSessionCookie(c: Context, token: string): void {
@@ -44,19 +40,18 @@ export function clearSessionCookie(c: Context): void {
   deleteCookie(c, SESSION_COOKIE, { path: '/' });
 }
 
-export function getUserFromRequest(c: Context): UserRow | null {
+export async function getUserFromRequest(c: Context): Promise<UserRow | null> {
   const token = getCookie(c, SESSION_COOKIE);
   if (!token) return null;
 
-  const row = db
-    .prepare(
-      `SELECT u.* FROM sessions s
-       JOIN users u ON u.id = s.user_id
-       WHERE s.token = ? AND s.expires_at > ?`,
-    )
-    .get(token, Date.now()) as UserRow | undefined;
+  const { data } = await supabase
+    .from('sessions')
+    .select('users(*)')
+    .eq('token', token)
+    .gt('expires_at', Date.now())
+    .single();
 
-  return row ?? null;
+  return (data?.users as unknown as UserRow) ?? null;
 }
 
 export function getSessionToken(c: Context): string | undefined {
@@ -64,7 +59,7 @@ export function getSessionToken(c: Context): string | undefined {
 }
 
 export const requireAuth: MiddlewareHandler<{ Variables: { user: UserRow } }> = async (c, next) => {
-  const user = getUserFromRequest(c);
+  const user = await getUserFromRequest(c);
   if (!user) return c.json({ error: 'unauthorized' }, 401);
   c.set('user', user);
   await next();
