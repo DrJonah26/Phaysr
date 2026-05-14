@@ -10,6 +10,15 @@
             "timeout": 30
           }
         ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path // \"\"' | grep -q '/widget/' && echo '{\"systemMessage\": \"Vergiss nicht, das Widget neu als Cloudflare Bucket hochzuladen!\"}' || true"
+          }
+        ]
       }
     ],
     "SessionStart": [

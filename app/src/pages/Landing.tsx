@@ -32,6 +32,7 @@ export default function Landing() {
           <li><a href="#how">How it works</a></li>
           <li><a href="#features">Features</a></li>
           <li><a href="#pricing">Pricing</a></li>
+          <li><a href="mailto:jonah.alt@gmx.de" style={{ fontSize: 14, fontWeight: 500, color: 'var(--ink2)', textDecoration: 'none' }}>Contact</a></li>
           <li><Link to="/signin" style={{ fontSize: 14, fontWeight: 500, color: 'var(--ink2)', textDecoration: 'none' }}>Sign in</Link></li>
           <li><Link to="/signup" className="nav-cta">Start free trial</Link></li>
         </ul>

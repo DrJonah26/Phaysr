@@ -13,11 +13,13 @@
       "Bash(netstat -ano)",
       "WebFetch(domain:api.anthropic.com)",
       "mcp__code-review-graph__get_architecture_overview_tool",
-      "Bash(npm install *)"
+      "Bash(npm install *)",
+      "Skill(update-config)",
+      "Skill(update-config:*)"
     ]
   },
+  "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "code-review-graph"
-  ],
-  "enableAllProjectMcpServers": true
+  ]
 }
