@@ -208,6 +208,7 @@ function TicketDeflectionVisual() {
 
 function StackCards() {
   const cardRefs = useRef<(HTMLElement | null)[]>([]);
+  const [openIndex, setOpenIndex] = useState<number>(0);
 
   useEffect(() => {
     const updateStack = () => {
@@ -246,10 +247,12 @@ function StackCards() {
 
   const cardRef = (i: number) => (el: HTMLElement | null) => { cardRefs.current[i] = el; };
 
+  const toggle = (i: number) => setOpenIndex(prev => prev === i ? -1 : i);
+
   return (
     <div className="hiw-stack">
 
-      <article className="stack-card" style={{ '--i': 0 } as React.CSSProperties} ref={cardRef(0)}>
+      <article className="stack-card" style={{ '--i': 0 } as React.CSSProperties} ref={cardRef(0)} data-open={openIndex === 0 ? '' : undefined} onClick={() => toggle(0)}>
         <div className="stack-dim" />
         <div className="stack-left">
           <span className="stack-index">
@@ -276,7 +279,7 @@ function StackCards() {
         </div>
       </article>
 
-      <article className="stack-card" style={{ '--i': 1 } as React.CSSProperties} ref={cardRef(1)}>
+      <article className="stack-card" style={{ '--i': 1 } as React.CSSProperties} ref={cardRef(1)} data-open={openIndex === 1 ? '' : undefined} onClick={() => toggle(1)}>
         <div className="stack-dim" />
         <div className="stack-left">
           <span className="stack-index">
@@ -299,7 +302,7 @@ function StackCards() {
         </div>
       </article>
 
-      <article className="stack-card" style={{ '--i': 2 } as React.CSSProperties} ref={cardRef(2)}>
+      <article className="stack-card" style={{ '--i': 2 } as React.CSSProperties} ref={cardRef(2)} data-open={openIndex === 2 ? '' : undefined} onClick={() => toggle(2)}>
         <div className="stack-dim" />
         <div className="stack-left">
           <span className="stack-index">
@@ -316,7 +319,7 @@ function StackCards() {
         </div>
       </article>
 
-      <article className="stack-card" style={{ '--i': 3 } as React.CSSProperties} ref={cardRef(3)}>
+      <article className="stack-card" style={{ '--i': 3 } as React.CSSProperties} ref={cardRef(3)} data-open={openIndex === 3 ? '' : undefined} onClick={() => toggle(3)}>
         <div className="stack-dim" />
         <div className="stack-left">
           <span className="stack-index">
