@@ -1543,58 +1543,13 @@
 /* ── Stack cards responsive ── */
 @media (max-width: 900px) {
   .stack-card {
-    position: static;
-    height: auto;
     grid-template-columns: 1fr;
-    transform: none !important;
-    margin-bottom: 12px;
-    cursor: pointer;
-    user-select: none;
+    height: auto;
   }
-  .stack-dim { display: none; }
-  .stack-left { padding: 22px 24px; }
-  .stack-spacer { display: none; }
-
-  /* Collapsed state: hide desc, tags, and visual */
-  .stack-card:not([data-open]) .stack-desc,
-  .stack-card:not([data-open]) .stack-tags {
-    display: none;
-  }
-  .stack-card:not([data-open]) .stack-visual {
-    display: none;
-  }
-  .stack-card:not([data-open]) .stack-left {
-    padding-bottom: 22px;
-  }
-  .stack-card:not([data-open]) h3 {
-    margin-bottom: 0;
-  }
-
-  /* Expanded state */
-  .stack-card[data-open] .stack-visual {
+  .stack-visual {
     border-left: none;
     border-top: 1px solid var(--border);
-    min-height: 240px;
+    min-height: 220px;
   }
-
-  /* Chevron indicator */
-  .stack-index::after {
-    content: '';
-    display: block;
-    width: 10px;
-    height: 10px;
-    border-right: 2px solid var(--ink-soft);
-    border-bottom: 2px solid var(--ink-soft);
-    transform: rotate(45deg);
-    margin-left: auto;
-    flex-shrink: 0;
-    transition: transform 0.2s ease;
-  }
-  .stack-card[data-open] .stack-index::after {
-    transform: rotate(-135deg);
-  }
-  .stack-index {
-    width: 100%;
-    justify-content: flex-start;
-  }
+  .stack-left { padding: 28px 24px; }
 }
