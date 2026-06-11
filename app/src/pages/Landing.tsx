@@ -558,11 +558,11 @@ export default function Landing() {
               <BrandDots size={26} />
             </div>
             <h1 className="headline">
-              Users ask anything.
-              <span className="line-2">Phaysr shows the way.</span>
+              The better version
+              <span className="line-2">of a chatbot.</span>
             </h1>
             <p className="hero-sub">
-              The user types one question. Phaysr scans the page, takes a screenshot of what they see, and builds a step-by-step plan to complete the task while highlighting which buttons to click.
+              Phaysr looks at your website, then shows users exactly which buttons to click to help them solve their problems.
             </p>
             <div className="hero-actions">
               <Link className="cta-primary" to="/signup">Try for free</Link>
