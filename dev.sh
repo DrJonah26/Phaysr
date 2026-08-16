@@ -1,6 +1,11 @@
 #!/bin/bash
-osascript -e 'tell app "Terminal" to do script "cd /Users/jonahalt/coding/Phaysr/backend && pnpm run dev"'
-osascript -e 'tell app "Terminal" to do script "cd /Users/jonahalt/coding/Phaysr/app && pnpm run dev"'
-osascript -e 'tell app "Terminal" to do script "cd /Users/jonahalt/coding/Phaysr/demo-site && pnpm run dev"'
-osascript -e 'tell app "Terminal" to do script "cd /Users/jonahalt/coding/Phaysr/widget && pnpm run dev"'
+# Opens one Terminal tab per service (macOS). On Linux/Windows run
+# `pnpm dev` from the repo root instead.
+set -euo pipefail
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+for pkg in backend app demo-site widget; do
+  osascript -e "tell app \"Terminal\" to do script \"cd '$ROOT/$pkg' && pnpm run dev\""
+done
+
 osascript -e 'tell app "Terminal" to do script "stripe listen --forward-to localhost:3000/billing/webhook"'
